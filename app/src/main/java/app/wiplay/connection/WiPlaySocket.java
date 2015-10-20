@@ -32,12 +32,13 @@ public class WiPlaySocket {
     }
 
     /* this call will take care for Bind, Connect */
-    public void CreateSocket(boolean isServer)
+    public void CreateSocket(boolean isServer, Context context)
     {
         try {
             if (isServer) {
                 socket = new ServerSocket(Constants.PORT);
                 hostname = ((ServerSocket) socket).getInetAddress().getHostName();
+                hotSpot = new WiPlayHotSpot(hostname, context);
                 Log.i(Constants.Tag,"Server Socket created @"+hostname+":1570");
             }
             else {
