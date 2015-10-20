@@ -4,7 +4,7 @@ import android.util.Log;
 
 import java.io.IOException;
 import java.net.*;
-import app.wiplay.Constants.Constants
+import app.wiplay.Constants.Constants;
 
 /**
  * Created by pchand on 10/19/2015.
@@ -37,7 +37,7 @@ public class WiPlaySocket {
         try {
             if (isServer) {
                 socket = new ServerSocket(Constants.PORT);
-                hostname = socket.getInetAddress().getHostName();
+                hostname = ((ServerSocket) socket).getInetAddress().getHostName();
                 Log.i(Constants.Tag,"Server Socket created @"+hostname+":1570");
             }
             else {
@@ -49,16 +49,18 @@ public class WiPlaySocket {
         catch(IOException e) {
             Log.i(Constants.Tag, "CreateSocket Exception " + e);
         }
-        catch (UnknownHostException e)
-        {
-            Log.i(Constants.Tag, "CreateSocket Exception " + e);
-        }
     }
 
     public void Listen()
     {
-        Socket clientSock = ((ServerSocket) socket).accept();
-        pool.AddToPool((clientSock));
+        try {
+            Socket clientSock = ((ServerSocket) socket).accept();
+            pool.AddToPool((clientSock));
+        }
+        catch(IOException e)
+        {
+
+        }
     }
 
     public void SendData(Socket sock, byte[] data)
