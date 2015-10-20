@@ -29,7 +29,7 @@ public class Constants {
     {
         Random rnd = new Random();
         StringBuilder sb = new StringBuilder(HOTSPOT_CHAR_LEN);
-        for(int i=0 i < HOTSPOT_CHAR_LEN; ++i)
+        for(int i=0; i < HOTSPOT_CHAR_LEN; ++i)
             sb.append(ALL_CHAR).charAt(rnd.nextInt(ALL_CHAR.length()));
         return sb.toString();
     }
