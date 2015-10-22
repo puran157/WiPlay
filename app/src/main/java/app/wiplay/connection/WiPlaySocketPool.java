@@ -40,7 +40,7 @@ public class WiPlaySocketPool {
     /* This method will start two threads, reader and writer
      * Reader will read from socket and write it to map
      * Writer will read from map and write it to socket
-     * TODO: Increase the number of threads if connections exceeds threshold
+     * TODO: Increase the number of threads if connections exceeds threshold/ or we will not make in singleton
      */
     public WiPlaySocketPool()
     {
@@ -61,7 +61,7 @@ public class WiPlaySocketPool {
                             * Read the BUFFER_SIZE - available bytes for now */
                             try {
                                 WiPlaySocketStruct struct = poolMap.get(keys[i]);
-                                byte[] arr = new byte[Constants.BUFFER_SIZE - struct.getInDataAvailable()];
+                                byte[] arr = null;
                                 ((Socket) keys[i]).getInputStream().read(arr, 0, arr.length);
                                 struct.WriteToMap(arr);
                             }
@@ -90,7 +90,7 @@ public class WiPlaySocketPool {
                             * Write the available bytes for now */
                             try {
                                 WiPlaySocketStruct struct = poolMap.get(keys[i]);
-                                byte[] arr = new byte[struct.getOutDataAvailable()];
+                                byte[] arr = null;
                                 struct.ReadFromMap(arr);
                                 ((Socket) keys[i]).getOutputStream().write(arr, 0, arr.length);
                             }

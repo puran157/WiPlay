@@ -18,23 +18,17 @@ public class WiPlayHotSpot {
 
     private String hotspot_name;
     private String hotspot_psk;
-    private String hotspot_host;
     private WifiManager wifiManager;
     private WifiConfiguration netconfig;
 
-    WiPlayHotSpot(String host, Context context)
+    WiPlayHotSpot(Context context)
     {
         hotspot_name = Constants.GetRandomString();
         hotspot_psk = Constants.GetRandomString();
-        hotspot_host = host;
         wifiManager = (WifiManager)context.getSystemService(context.WIFI_SERVICE);
         netconfig = new WifiConfiguration();
     }
 
-    public String getHostName()
-    {
-        return hotspot_host;
-    }
     public String getHotspot_name() {
         return  hotspot_name;
     }

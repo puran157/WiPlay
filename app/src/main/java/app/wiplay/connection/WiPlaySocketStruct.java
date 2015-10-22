@@ -1,6 +1,8 @@
 package app.wiplay.connection;
 
 import java.net.Socket;
+import java.util.LinkedList;
+import java.util.List;
 
 import app.wiplay.Constants.Constants;
 
@@ -9,63 +11,36 @@ import app.wiplay.Constants.Constants;
  */
 public class WiPlaySocketStruct {
 
-    private byte[] OutData;
-    private byte[] InData;
-    private int OutDataAvailable;
-    private int InDataAvailable;
+    private LinkedList<byte[]> OutData;
+    private LinkedList<byte[]> InData;
 
     public WiPlaySocketStruct()
     {
-        OutDataAvailable = 0;
-        InDataAvailable = 0;
-        OutData = new byte[Constants.BUFFER_SIZE];
-        InData = new byte[Constants.BUFFER_SIZE];
-    }
-
-    public int getInDataAvailable() {
-        return InDataAvailable;
-    }
-
-    public int getOutDataAvailable() {
-        return OutDataAvailable;
+        OutData = new LinkedList<>();
+        InData = new LinkedList<>();
     }
 
     public boolean PushToOutGoingData(byte[] data)
     {
-        if(data.length <= OutDataAvailable )
-        {
-            System.arraycopy(OutData, OutData.length, data, 0, data.length);
-            OutDataAvailable += data.length;
-            return true;
-        } else {
-            /* Come back later and try again */
-            return false;
-        }
+        OutData.addLast(data);
+        return true;
     }
 
     public boolean ReadFromIncomingData(byte[] data)
     {
-        if(InDataAvailable > 0) {
-            System.arraycopy(data, 0, InData, 0, data.length);
-            InDataAvailable -= data.length;
-            return true;
-        }
-        else
-        {
-            /* fallback algo */
-            return false;
-        }
+        data = InData.getFirst();
+        InData.removeFirst();
+        return true;
     }
 
     public void WriteToMap(byte[] data)
     {
-        System.arraycopy(data, 0, InData, InDataAvailable, data.length);
-        InDataAvailable += data.length;
+        InData.addLast(data);
     }
 
     public void ReadFromMap(byte[] data)
     {
-        System.arraycopy(OutData, 0, data, 0, OutDataAvailable);
-        OutDataAvailable = 0;
+        data = OutData.getFirst();
+        OutData.removeFirst();
     }
 }
