@@ -57,13 +57,13 @@ public class WiPlaySocketStruct {
         }
     }
 
-    public void ReadData(byte[] data)
+    public void WriteToMap(byte[] data)
     {
         System.arraycopy(data, 0, InData, InDataAvailable, data.length);
         InDataAvailable += data.length;
     }
 
-    public void WriteData(byte[] data)
+    public void ReadFromMap(byte[] data)
     {
         System.arraycopy(OutData, 0, data, 0, OutDataAvailable);
         OutDataAvailable = 0;

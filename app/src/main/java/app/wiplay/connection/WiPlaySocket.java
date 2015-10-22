@@ -26,18 +26,18 @@ public class WiPlaySocket {
         socket = null;
         hostname = null;
         hotSpot = null;
-        if(isServer)
-            pool = new WiPlaySocketPool();
-        else
-            pool = null; /* for now Client will never use the pool */
+        pool = new WiPlaySocketPool();
     }
 
     /* this call will take care for Bind, Connect */
-    public void CreateSocket(boolean isServer, Context context)
+    public void CreateSocket(boolean isServer, Context context, boolean isControl)
     {
         try {
             if (isServer) {
-                socket = new ServerSocket(Constants.PORT);
+                if(isControl)
+                    socket = new ServerSocket(Constants.CONTROL_PORT);
+                else
+                    socket = new ServerSocket(Constants.DATA_PORT);
                 hostname = ((ServerSocket) socket).getInetAddress().getHostName();
                 hotSpot = new WiPlayHotSpot(hostname, context);
                 Log.i(Constants.Tag,"Server Socket created @"+hostname+":1570");
@@ -45,7 +45,10 @@ public class WiPlaySocket {
             else {
                 /* Its a client Socket */
                 hostname = hotSpot.getHostName();
-                socket  = new Socket(hostname, Constants.PORT);
+                if(isControl)
+                    socket  = new Socket(hostname, Constants.CONTROL_PORT);
+                else
+                    socket  = new Socket(hostname, Constants.DATA_PORT);
             }
         }
         catch(IOException e) {

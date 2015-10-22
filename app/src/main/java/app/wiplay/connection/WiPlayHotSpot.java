@@ -20,6 +20,7 @@ public class WiPlayHotSpot {
     private String hotspot_psk;
     private String hotspot_host;
     private WifiManager wifiManager;
+    private WifiConfiguration netconfig;
 
     WiPlayHotSpot(String host, Context context)
     {
@@ -27,7 +28,32 @@ public class WiPlayHotSpot {
         hotspot_psk = Constants.GetRandomString();
         hotspot_host = host;
         wifiManager = (WifiManager)context.getSystemService(context.WIFI_SERVICE);
+        netconfig = new WifiConfiguration();
+    }
 
+    public String getHostName()
+    {
+        return hotspot_host;
+    }
+    public String getHotspot_name() {
+        return  hotspot_name;
+    }
+
+    public void setHotspot_name(String name) {
+        hotspot_name = name;
+    }
+
+    public String getHotspot_psk() {
+        return  hotspot_psk;
+    }
+
+    public void setHotspot_psk(String psk) {
+        hotspot_psk = psk;
+    }
+
+    /* start HotSpot, to be used by server */
+    public void StartHotSpot()
+    {
         if(wifiManager.isWifiEnabled())
             wifiManager.setWifiEnabled(false);
 
@@ -38,10 +64,9 @@ public class WiPlayHotSpot {
         {
             if(method.getName().equals("setWifiApEnabled")) {
                 method_found = true;
-                WifiConfiguration netconfig = new WifiConfiguration();
                 //netconfig.BSSID = hotspot_name;
-                netconfig.SSID = hotspot_name;
-                netconfig.preSharedKey = hotspot_psk;
+                netconfig.SSID = String.format("\"%s\"", hotspot_name);
+                netconfig.preSharedKey = String.format("\"%s\"", hotspot_psk);
                 netconfig.allowedAuthAlgorithms.set(WifiConfiguration.AuthAlgorithm.OPEN);
                 netconfig.allowedProtocols.set(WifiConfiguration.Protocol.RSN);
                 netconfig.allowedProtocols.set(WifiConfiguration.Protocol.WPA);
@@ -55,12 +80,12 @@ public class WiPlayHotSpot {
                     {
                         if(isWifiApEnabledMethod.getName().equals("isWifiApEnabled")){
                             while(!(Boolean)isWifiApEnabledMethod.invoke(wifiManager)) {};
-                                for(Method method1: methods) {
-                                    if(method1.getName().equals("getWifiApState")) {
-                                        int apState;
-                                        apState = (Integer)method1.invoke(wifiManager);
-                                    }
+                            for(Method method1: methods) {
+                                if(method1.getName().equals("getWifiApState")) {
+                                    int apState;
+                                    apState = (Integer)method1.invoke(wifiManager);
                                 }
+                            }
                         }
                     }
                     if(apstatus)
@@ -84,24 +109,20 @@ public class WiPlayHotSpot {
         }
         if(!method_found)
             Log.i(Constants.Tag, "HotSpot is Not supported on this device");
-
     }
 
-    public String getHostName()
-    {
-        return hotspot_host;
-    }
-
-    /* start HotSpot, to be used by server */
-    public void StartHotSpot()
-    {
-
-    }
-
-    /* Connect to HotSpot, to be used by client */
+    /* Connect to HotSpot, to be used by client
+    * To be called after setHotspot_name and setHotspot_psk
+    * TODO: ADD MANIFEST PERMISSION FOR WIFI ACCESS
+    */
 
     public void ConnectToHotSpot()
     {
-
+        netconfig.SSID = String.format("\"%s\"", hotspot_name);
+        netconfig.preSharedKey = String.format("\"%s\"", hotspot_psk);
+        int netID = wifiManager.addNetwork(netconfig);
+        wifiManager.disconnect();
+        wifiManager.enableNetwork(netID, true);
+        wifiManager.reconnect();
     }
 }

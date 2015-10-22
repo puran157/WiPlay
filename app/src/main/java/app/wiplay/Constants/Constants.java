@@ -8,19 +8,27 @@ import java.util.Random;
  */
 public class Constants {
 
-    public final static int PORT = 1570;
+    public final static int CONTROL_PORT = 1570;
+    public final static int DATA_PORT = 2570;
     public final static String Tag="WiPlay";
     public final static int BUFFER_SIZE = 2*2048;
     public final static int HOTSPOT_CHAR_LEN = 12;
     public enum WiPlayEvent {
         CONNECTING,
         CONNECTED,
-        CANT_CONNECT,
+        CANT_CONNECT
+    };
 
-        REQUEST_FILE,
-        STREAM_FILE,
+    public enum DataEvent {
+        ASK_FILE,
+        SEND_FILE,
+        FILE_DONE
+    };
 
-        PLAY_FILE,
+    public enum ControlEvent {
+        PLAY,
+        PAUSE,
+        STOP
     };
 
     private final static String ALL_CHAR = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz!@#$%^&*()-";

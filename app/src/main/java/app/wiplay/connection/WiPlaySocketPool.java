@@ -9,6 +9,9 @@ import app.wiplay.Constants.Constants;
 
 /**
  * Created by pchand on 10/19/2015.
+ * WiPlaySocketPool will maintain two threads for maps of socket,
+ * (Incase of client the map will contain two sockets only (Control, Data socket))
+ * One thread will loop over all sockets and write the data to wire and vice versa for other thread
  */
 public class WiPlaySocketPool {
 
@@ -34,6 +37,11 @@ public class WiPlaySocketPool {
 
     /* Public Methods */
 
+    /* This method will start two threads, reader and writer
+     * Reader will read from socket and write it to map
+     * Writer will read from map and write it to socket
+     * TODO: Increase the number of threads if connections exceeds threshold
+     */
     public WiPlaySocketPool()
     {
         poolMap = new HashMap<>();
@@ -55,7 +63,7 @@ public class WiPlaySocketPool {
                                 WiPlaySocketStruct struct = poolMap.get(keys[i]);
                                 byte[] arr = new byte[Constants.BUFFER_SIZE - struct.getInDataAvailable()];
                                 ((Socket) keys[i]).getInputStream().read(arr, 0, arr.length);
-                                struct.ReadData(arr);
+                                struct.WriteToMap(arr);
                             }
                             catch(IOException e)
                             {}
@@ -83,7 +91,7 @@ public class WiPlaySocketPool {
                             try {
                                 WiPlaySocketStruct struct = poolMap.get(keys[i]);
                                 byte[] arr = new byte[struct.getOutDataAvailable()];
-                                struct.WriteData(arr);
+                                struct.ReadFromMap(arr);
                                 ((Socket) keys[i]).getOutputStream().write(arr, 0, arr.length);
                             }
                             catch (IOException e){}
@@ -94,18 +102,26 @@ public class WiPlaySocketPool {
         });
 
     }
-
+    /*
+    * New Socket will be added to the pool
+    * */
     public void AddToPool(Socket socket)
     {
         WiPlaySocketStruct struct = new WiPlaySocketStruct();
         poolMap.put(socket, struct);
     }
 
+    /* Write data to the socketpool Map
+     */
     public void SendData(Socket socket, byte[] data)
     {
         poolMap.get(socket).PushToOutGoingData(data);
     }
 
+    /*
+        Read data from Socket pool map
+        TODO: Is it really required?
+     */
     public void ReadData(Socket socket, byte[] data)
     {
         /* TODO: Implement */
