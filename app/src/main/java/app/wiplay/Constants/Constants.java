@@ -1,10 +1,10 @@
-package app.wiplay.Constants;
+package app.wiplay.constants;
 
-import java.net.SocketAddress;
 import java.util.Random;
 
 /**
  * Created by pchand on 10/19/2015.
+ * Constants
  */
 public class Constants {
 
@@ -18,18 +18,12 @@ public class Constants {
         CONNECTED,
         CANT_CONNECT
     };
-
-    public enum DataEvent {
-        ASK_FILE,
-        SEND_FILE,
-        FILE_DONE
-    };
-
-    public enum ControlEvent {
-        PLAY,
-        PAUSE,
-        STOP
-    };
+    public final static int ASK_FILE = 0,
+                            SEND_FILE = 1,
+                            FILE_DONE = 2,
+                            PLAY = 3,
+                            PAUSE = 4,
+                            STOP = 5;
 
     private final static String ALL_CHAR = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz!@#$%^&*()-";
 
