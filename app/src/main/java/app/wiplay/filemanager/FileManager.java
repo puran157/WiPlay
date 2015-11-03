@@ -2,7 +2,6 @@ package app.wiplay.filemanager;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 
@@ -18,6 +17,11 @@ public class FileManager {
     private  BufferedReader reader;
     private  int startOffset;
 
+    FileManager(String path)
+    {
+        file_path = path;
+    }
+
     public  void Initialise()
     {
         file = new File(file_path);
@@ -32,17 +36,17 @@ public class FileManager {
         }
     }
 
-    public byte[] SendChunk()
+    public byte[] SendChunk(int bytesRead)
     {
         char[] data = new char[Constants.BUFFER_SIZE];
         try {
-            reader.read(data, startOffset, Constants.BUFFER_SIZE);
+            bytesRead = reader.read(data, startOffset, Constants.BUFFER_SIZE);
         }
         catch(IOException e)
         {
 
         }
-        startOffset+= Constants.BUFFER_SIZE;
+        startOffset+= bytesRead;
         return new String(data).getBytes();
     }
 
