@@ -1,10 +1,6 @@
 package app.wiplay.connection;
 
-import java.net.Socket;
 import java.util.LinkedList;
-import java.util.List;
-
-import app.wiplay.Constants.Constants;
 
 /**
  * Created by pchand on 10/19/2015.

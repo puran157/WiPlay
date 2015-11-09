@@ -7,9 +7,8 @@ import android.util.Log;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.security.SecureRandom;
 
-import app.wiplay.Constants.Constants;
+import app.wiplay.constants.Constants;
 
 /**
  * Created by pchand on 10/19/2015.

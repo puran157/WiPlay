@@ -1,11 +1,10 @@
 package app.wiplay.connection;
 
-import android.content.Context;
 import android.util.Log;
 
 import java.io.IOException;
 import java.net.*;
-import app.wiplay.Constants.Constants;
+import app.wiplay.constants.Constants;
 
 /**
  * Created by pchand on 10/19/2015.

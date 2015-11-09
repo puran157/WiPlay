@@ -3,9 +3,6 @@ package app.wiplay.connection;
 import java.io.IOException;
 import java.net.Socket;
 import java.util.HashMap;
-import java.util.Set;
-
-import app.wiplay.Constants.Constants;
 
 /**
  * Created by pchand on 10/19/2015.

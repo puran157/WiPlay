@@ -1,4 +1,7 @@
 <resources>
     <string name="app_name">WiPlay</string>
     <string name="title_activity_list_file">ListFileActivity</string>
+    <string name="browse">Browse the file..</string>
+    <string name="startServer">Start Sharing..</string>
+    <string name="connect">Connect..</string>
 </resources>
