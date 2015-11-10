@@ -6,16 +6,20 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import app.wiplay.com.wiplay.R;
 import app.wiplay.constants.Constants;
+
 
 public class MainActivity extends Activity {
 
     private Button connect = null;
     private Button browse = null;
     private Button startSharing = null;
+    private static String file_path = null;
+    private TextView file = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -25,6 +29,12 @@ public class MainActivity extends Activity {
         connect = (Button)findViewById(R.id.connect);
         browse = (Button)findViewById(R.id.browse);
         startSharing = (Button)findViewById(R.id.startServer);
+        file = (TextView)findViewById(R.id.file_path);
+
+        if(file_path != null) {
+            file.setText(file_path);
+            startSharing.setEnabled(true);
+        }
 
         /* connect ClickHandlers */
         connect.setOnClickListener(new View.OnClickListener() {
@@ -69,6 +79,11 @@ public class MainActivity extends Activity {
         });
     }
 
+    public static void setFile_path(String path)
+    {
+        file_path = path;
+    }
+
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent intent)
     {
@@ -79,10 +94,6 @@ public class MainActivity extends Activity {
             {
                 Toast.makeText(getApplicationContext(), intent.getStringExtra("SCAN_RESULT_FORMAT"), Toast.LENGTH_SHORT).show();
                 Toast.makeText(getApplicationContext(), intent.getStringExtra("SCAN_RESULT"), Toast.LENGTH_SHORT).show();
-            }
-            else if(action.equals(Constants.ACTION[0]))
-            {
-                Toast.makeText(getApplicationContext(), intent.getStringExtra("file"), Toast.LENGTH_SHORT).show();
             }
             else
                 action = ""; //Unhandled cases

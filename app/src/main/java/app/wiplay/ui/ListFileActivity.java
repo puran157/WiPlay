@@ -31,7 +31,7 @@ public class ListFileActivity extends ListActivity {
         // Use the current directory as title
         path = Environment.getExternalStorageDirectory().getAbsolutePath();
         //types = new FileTypes(getApplicationContext());
-        Toast.makeText(getApplicationContext(), path, Toast.LENGTH_SHORT).show();
+        //Toast.makeText(getApplicationContext(), path, Toast.LENGTH_SHORT).show();
         if (getIntent().hasExtra("path")) {
             path = getIntent().getStringExtra("path");
         }
@@ -50,7 +50,7 @@ public class ListFileActivity extends ListActivity {
             //for(int i = 0; i < list.length; ++i)
             for(String file: list)
             {
-                if(!file.equals("."))
+                //if(!file.equals("."))
                     values.add(file);
             }
         }
@@ -76,11 +76,10 @@ public class ListFileActivity extends ListActivity {
             startActivity(intent);
             finish();
         } else {
-           Intent intent = new Intent(this, MainActivity.class);
-            intent.putExtra(Constants.action, Constants.ACTION[0]);
-           intent.putExtra("file", filename);
-           setResult(RESULT_OK, intent);
-           finish();
+            MainActivity.setFile_path(filename);
+            Intent intent = new Intent(this, MainActivity.class);
+            startActivity(intent);
+            finish();
         }
     }
 

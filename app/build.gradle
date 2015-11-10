@@ -26,4 +26,13 @@ dependencies {
     compile 'com.android.support:design:23.1.0'
     compile 'com.google.zxing:android-core:3.2.1'
     compile 'com.google.zxing:android-integration:3.2.1'
+    compile files('libs/android-core-3.2.1-javadoc.jar')
+    compile files('libs/android-core-3.2.1-sources.jar')
+    compile files('libs/android-core-3.2.1.jar')
+    compile files('libs/android-integration-3.2.1-javadoc.jar')
+    compile files('libs/android-integration-3.2.1-sources.jar')
+    compile files('libs/android-integration-3.2.1.jar')
+    compile files('libs/core-3.2.1-javadoc.jar')
+    compile files('libs/core-3.2.1-sources.jar')
+    compile files('libs/core-3.2.1.jar')
 }

@@ -12,10 +12,19 @@
         android:layout_centerHorizontal="true"
         android:text="@string/browse"
         android:id="@+id/browse"/>
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/file_path"
+        android:layout_below="@+id/browse"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="100px"
+        android:text="@string/file_path"
+        />
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/browse"
+        android:layout_below="@+id/file_path"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="100px"
         android:enabled="false"
