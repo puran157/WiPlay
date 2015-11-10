@@ -3,6 +3,7 @@ package app.wiplay.ui;
 import android.app.ListActivity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Environment;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
@@ -14,10 +15,13 @@ import java.util.Collections;
 import java.util.List;
 
 import app.wiplay.com.wiplay.R;
+import app.wiplay.constants.Constants;
+//import app.wiplay.constants.FileTypes;
 
 public class ListFileActivity extends ListActivity {
 
     private String path;
+    //private FileTypes types;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -25,24 +29,29 @@ public class ListFileActivity extends ListActivity {
         setContentView(R.layout.activity_list_file);
 
         // Use the current directory as title
-        path = "/";
+        path = Environment.getExternalStorageDirectory().getAbsolutePath();
+        //types = new FileTypes(getApplicationContext());
+        Toast.makeText(getApplicationContext(), path, Toast.LENGTH_SHORT).show();
         if (getIntent().hasExtra("path")) {
             path = getIntent().getStringExtra("path");
         }
         setTitle(path);
 
-        // Read all files sorted into the values-array
+        // Read all supported files types sorted into the values-array
         List values = new ArrayList();
         File dir = new File(path);
         if (!dir.canRead()) {
             setTitle(getTitle() + " (inaccessible)");
         }
+
+        //File[] list = dir.listFiles(types);
         String[] list = dir.list();
         if (list != null) {
-            for (String file : list) {
-                if (!file.startsWith(".")) {
+            //for(int i = 0; i < list.length; ++i)
+            for(String file: list)
+            {
+                if(!file.equals("."))
                     values.add(file);
-                }
             }
         }
         Collections.sort(values);
@@ -65,8 +74,13 @@ public class ListFileActivity extends ListActivity {
             Intent intent = new Intent(this, ListFileActivity.class);
             intent.putExtra("path", filename);
             startActivity(intent);
+            finish();
         } else {
-            Toast.makeText(this, filename + " is not a directory", Toast.LENGTH_LONG).show();
+           Intent intent = new Intent(this, MainActivity.class);
+            intent.putExtra(Constants.action, Constants.ACTION[0]);
+           intent.putExtra("file", filename);
+           setResult(RESULT_OK, intent);
+           finish();
         }
     }
 

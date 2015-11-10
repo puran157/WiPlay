@@ -9,6 +9,7 @@ import android.widget.Button;
 import android.widget.Toast;
 
 import app.wiplay.com.wiplay.R;
+import app.wiplay.constants.Constants;
 
 public class MainActivity extends Activity {
 
@@ -37,7 +38,14 @@ public class MainActivity extends Activity {
         browse.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(getApplicationContext(), "Browse clicked", Toast.LENGTH_SHORT).show();
+                try {
+                    Intent intent = new Intent(getApplicationContext(), ListFileActivity.class);
+                    startActivityForResult(intent, 0);
+                }
+                catch(Exception e)
+                {
+                    e.printStackTrace();
+                }
             }
         });
 
@@ -51,7 +59,7 @@ public class MainActivity extends Activity {
                 {
                     Intent intent = new Intent("com.google.zxing.client.android.SCAN");
                     intent.putExtra("SCAN_MODE", "QR_CODE_MODE, PRODUCT_MODE");
-                    startActivityForResult(intent, 0);
+                    startActivityForResult(intent, 1);
                 }
                 catch(Exception e)
                 {
@@ -64,11 +72,20 @@ public class MainActivity extends Activity {
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent intent)
     {
-        if(requestCode == 0)
-            if(resultCode == RESULT_OK)
+        String action  = intent.getStringExtra(Constants.action);
+        Toast.makeText(getApplicationContext(), "Inside ActivityResult "+action, Toast.LENGTH_SHORT).show();
+        if(resultCode == RESULT_OK) {
+            if(action.equals(Constants.ACTION[1]))
             {
                 Toast.makeText(getApplicationContext(), intent.getStringExtra("SCAN_RESULT_FORMAT"), Toast.LENGTH_SHORT).show();
                 Toast.makeText(getApplicationContext(), intent.getStringExtra("SCAN_RESULT"), Toast.LENGTH_SHORT).show();
             }
+            else if(action.equals(Constants.ACTION[0]))
+            {
+                Toast.makeText(getApplicationContext(), intent.getStringExtra("file"), Toast.LENGTH_SHORT).show();
+            }
+            else
+                action = ""; //Unhandled cases
+        }
     }
 }
