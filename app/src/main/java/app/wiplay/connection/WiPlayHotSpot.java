@@ -20,10 +20,10 @@ public class WiPlayHotSpot {
     private WifiManager wifiManager;
     private WifiConfiguration netconfig;
 
-    WiPlayHotSpot(Context context)
+    public WiPlayHotSpot(Context context)
     {
-        hotspot_name = Constants.GetRandomString();
-        hotspot_psk = Constants.GetRandomString();
+        hotspot_name = Constants.GetRandomString(Constants.HOTSPOT_CHAR_LEN);
+        hotspot_psk = Constants.GetRandomString(Constants.HOTSPOT_CHAR_LEN);
         wifiManager = (WifiManager)context.getSystemService(context.WIFI_SERVICE);
         netconfig = new WifiConfiguration();
     }
@@ -32,16 +32,8 @@ public class WiPlayHotSpot {
         return  hotspot_name;
     }
 
-    public void setHotspot_name(String name) {
-        hotspot_name = name;
-    }
-
     public String getHotspot_psk() {
         return  hotspot_psk;
-    }
-
-    public void setHotspot_psk(String psk) {
-        hotspot_psk = psk;
     }
 
     /* start HotSpot, to be used by server */
@@ -58,11 +50,13 @@ public class WiPlayHotSpot {
             if(method.getName().equals("setWifiApEnabled")) {
                 method_found = true;
                 //netconfig.BSSID = hotspot_name;
-                netconfig.SSID = String.format("\"%s\"", hotspot_name);
-                netconfig.preSharedKey = String.format("\"%s\"", hotspot_psk);
+                netconfig.SSID = String.format("%s", hotspot_name);
+                netconfig.preSharedKey = String.format("%s", hotspot_psk);
+                netconfig.hiddenSSID = true;
                 netconfig.allowedAuthAlgorithms.set(WifiConfiguration.AuthAlgorithm.OPEN);
-                netconfig.allowedProtocols.set(WifiConfiguration.Protocol.RSN);
+                //netconfig.allowedProtocols.set(WifiConfiguration.Protocol.RSN);
                 netconfig.allowedProtocols.set(WifiConfiguration.Protocol.WPA);
+                netconfig.allowedProtocols.set(WifiConfiguration.KeyMgmt.WPA_PSK);
                 netconfig.allowedPairwiseCiphers.set(WifiConfiguration.PairwiseCipher.CCMP);
                 netconfig.allowedPairwiseCiphers.set(WifiConfiguration.PairwiseCipher.TKIP);
                 netconfig.allowedGroupCiphers.set(WifiConfiguration.GroupCipher.CCMP);

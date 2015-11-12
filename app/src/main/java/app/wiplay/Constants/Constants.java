@@ -31,12 +31,12 @@ public class Constants {
     public final static String action = "ACTION";
     public final static String ACTION[] = {"FILE_CHOOSE", "QR_SCAN"};
 
-    public static String GetRandomString()
+    public static String GetRandomString(int len)
     {
         Random rnd = new Random();
-        StringBuilder sb = new StringBuilder(HOTSPOT_CHAR_LEN);
-        for(int i=0; i < HOTSPOT_CHAR_LEN; ++i)
-            sb.append(ALL_CHAR).charAt(rnd.nextInt(ALL_CHAR.length()));
+        StringBuilder sb = new StringBuilder(len);
+        for(int i=0; i < len; ++i)
+            sb.append(ALL_CHAR.charAt(rnd.nextInt(ALL_CHAR.length())));
         return sb.toString();
     }
 }

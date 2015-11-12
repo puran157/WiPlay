@@ -9,7 +9,6 @@ import android.graphics.Color;
 import android.net.Uri;
 import android.util.Log;
 import android.widget.ImageView;
-import android.widget.Toast;
 
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.Writer;
@@ -22,7 +21,7 @@ import app.wiplay.constants.Constants;
 public class QRWrapper {
 
     public static void CreateQR(String data, ImageView image) throws WriterException{
-        com.google.zxing.Writer writer = new QRCodeWriter();
+        Writer writer = new QRCodeWriter();
         String finalData = Uri.encode(data, "utf-8");
         BitMatrix bm = writer.encode(finalData, BarcodeFormat.QR_CODE, 150, 150);
         Bitmap imageBitmap = Bitmap.createBitmap(150, 150, Bitmap.Config.ARGB_8888);

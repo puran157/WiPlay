@@ -16,6 +16,7 @@ public class WiPlaySocketPool {
     private HashMap<Socket, WiPlaySocketStruct> poolMap;
     private Thread reader;
     private Thread writer;
+    private WiPlayServer server; //For callback
 
     /* Private Methods */
 
@@ -34,14 +35,27 @@ public class WiPlaySocketPool {
 
     /* Public Methods */
 
+    public HashMap<Socket, WiPlaySocketStruct> getPoolMap()
+    {
+        return poolMap;
+    }
+
     /* This method will start two threads, reader and writer
      * Reader will read from socket and write it to map
      * Writer will read from map and write it to socket
      * TODO: Increase the number of threads if connections exceeds threshold/ or we will not make in singleton
      */
-    public WiPlaySocketPool()
-    {
+    public WiPlaySocketPool() {
         poolMap = new HashMap<>();
+        server = null;
+    }
+
+    public WiPlaySocketPool(WiPlayServer s) {
+        poolMap = new HashMap<>();
+        server = s;
+    }
+
+    public void StartThreads() {
 
         reader = new Thread(new Runnable() {
             @Override
@@ -106,6 +120,8 @@ public class WiPlaySocketPool {
     {
         WiPlaySocketStruct struct = new WiPlaySocketStruct();
         poolMap.put(socket, struct);
+        if(server != null)
+            server.StartSharingFile();
     }
 
     /* Write data to the socketpool Map

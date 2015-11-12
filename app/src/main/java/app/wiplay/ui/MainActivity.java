@@ -6,11 +6,17 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.zxing.WriterException;
+
 import app.wiplay.com.wiplay.R;
+import app.wiplay.connection.WiPlayHotSpot;
+import app.wiplay.connection.WiPlayServer;
 import app.wiplay.constants.Constants;
+import app.wiplay.qr.QRWrapper;
 
 
 public class MainActivity extends Activity {
@@ -18,8 +24,13 @@ public class MainActivity extends Activity {
     private Button connect = null;
     private Button browse = null;
     private Button startSharing = null;
-    private static String file_path = null;
     private TextView file = null;
+
+    private static String file_path = null;
+
+    private Button cancel = null;
+    private Button play = null;
+    private ImageView imageView = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,15 +76,31 @@ public class MainActivity extends Activity {
             @Override
             public void onClick(View v) {
                 Toast.makeText(getApplicationContext(), "Start Sharing clicked", Toast.LENGTH_SHORT).show();
-                try
-                {
-                    Intent intent = new Intent("com.google.zxing.client.android.SCAN");
-                    intent.putExtra("SCAN_MODE", "QR_CODE_MODE, PRODUCT_MODE");
-                    startActivityForResult(intent, 1);
+
+                /* start the hotspot */
+                WiPlayHotSpot hotspot = new WiPlayHotSpot(getApplicationContext());
+                hotspot.StartHotSpot();
+
+                /* start the control & data server */
+                WiPlayServer server = new WiPlayServer(file_path);
+                server.GoLive();
+
+                setContentView(R.layout.qr_code);
+                play = (Button)findViewById(R.id.play);
+                cancel = (Button)findViewById(R.id.cancel);
+                imageView = (ImageView)findViewById(R.id.imageView);
+
+                 /* Generate QR Code */
+                String data = "";
+                data.concat("HOTSPOT:"+hotspot.getHotspot_name() + "\n");
+                data.concat("PSK:" + hotspot.getHotspot_psk() + "\n");
+                data.concat("HOST:" + server.gethostName());
+                try {
+                    QRWrapper.CreateQR(data, imageView);
                 }
-                catch(Exception e)
+                catch(WriterException e)
                 {
-                    e.printStackTrace();
+
                 }
             }
         });

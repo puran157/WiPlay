@@ -17,12 +17,12 @@ public class FileManager {
     private  BufferedReader reader;
     private  int startOffset;
 
-    FileManager(String path)
+    public FileManager(String path)
     {
         file_path = path;
     }
 
-    public  void Initialise()
+    public void Initialise()
     {
         file = new File(file_path);
         startOffset = 0;

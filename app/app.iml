@@ -94,7 +94,6 @@
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" exported="" name="android-core-3.2.1" level="project" />
     <orderEntry type="library" exported="" name="1_android-core-3.2.1" level="project" />
-    <orderEntry type="library" exported="" name="core-3.2.1-javadoc" level="project" />
     <orderEntry type="library" exported="" name="android-core-3.2.1-javadoc" level="project" />
     <orderEntry type="library" exported="" name="support-annotations-23.1.0" level="project" />
     <orderEntry type="library" exported="" name="design-23.1.0" level="project" />

@@ -9,16 +9,19 @@ public class WiPlaySocketStruct {
 
     private LinkedList<byte[]> OutData;
     private LinkedList<byte[]> InData;
+    private int offSet;
 
     public WiPlaySocketStruct()
     {
         OutData = new LinkedList<>();
         InData = new LinkedList<>();
+        offSet = 0;
     }
 
     public boolean PushToOutGoingData(byte[] data)
     {
         OutData.addLast(data);
+        offSet += data.length;
         return true;
     }
 

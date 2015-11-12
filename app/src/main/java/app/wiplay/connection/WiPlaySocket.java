@@ -15,25 +15,36 @@ public class WiPlaySocket {
     /* Data Members */
     private Object socket;
     private String hostname;
+    private boolean isServer;
     private WiPlaySocketPool pool; //TODO: make it array so more threads can be started to handle multiple requests
     /* Private Methods */
 
     /* Public Methods */
 
-    public WiPlaySocket(boolean isServer)
+    public WiPlaySocket()
     {
         socket = null;
         hostname = null;
         pool = new WiPlaySocketPool();
+        this.isServer = false;
     }
 
-    public void setHostname(String host)
+    public WiPlaySocket(WiPlayServer sock)
     {
-        hostname = host;
+        socket = null;
+        hostname = null;
+        pool = new WiPlaySocketPool(sock);
+        this.isServer = true;
     }
+
+    public String getHostname()
+    {
+        return hostname;
+    }
+    public WiPlaySocketPool getPool() { return pool;}
 
     /* this call will take care for Bind, Connect */
-    public void CreateSocket(boolean isServer, boolean isControl)
+    public void CreateSocket(boolean isControl)
     {
         try {
             if (isServer) {
@@ -41,8 +52,8 @@ public class WiPlaySocket {
                     socket = new ServerSocket(Constants.CONTROL_PORT);
                 else
                     socket = new ServerSocket(Constants.DATA_PORT);
-                hostname = ((ServerSocket) socket).getInetAddress().getHostName();
-                Log.i(Constants.Tag,"Server Socket created @"+hostname+":1570");
+                hostname = ((ServerSocket) socket).getLocalSocketAddress().toString();
+                Log.i(Constants.Tag,"Server Socket created @"+hostname);
             }
             else {
                 /* Its a client Socket */
@@ -59,13 +70,13 @@ public class WiPlaySocket {
 
     public void Listen()
     {
-        try {
-            Socket clientSock = ((ServerSocket) socket).accept();
-            pool.AddToPool((clientSock));
-        }
-        catch(IOException e)
-        {
+        if(socket != null) {
+            try {
+                Socket clientSock = ((ServerSocket) socket).accept();
+                pool.AddToPool((clientSock));
+            } catch (IOException e) {
 
+            }
         }
     }
 
