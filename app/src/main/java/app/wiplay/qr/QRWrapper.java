@@ -6,7 +6,6 @@ package app.wiplay.qr;
 
 import android.graphics.Bitmap;
 import android.graphics.Color;
-import android.net.Uri;
 import android.util.Log;
 import android.widget.ImageView;
 
@@ -20,21 +19,23 @@ import app.wiplay.constants.Constants;
 
 public class QRWrapper {
 
-    public static void CreateQR(String data, ImageView image) throws WriterException{
-        Writer writer = new QRCodeWriter();
-        String finalData = Uri.encode(data, "utf-8");
-        BitMatrix bm = writer.encode(finalData, BarcodeFormat.QR_CODE, 150, 150);
-        Bitmap imageBitmap = Bitmap.createBitmap(150, 150, Bitmap.Config.ARGB_8888);
+    public static void CreateQR( String data,  ImageView image){
+                Writer writer = new QRCodeWriter();
+                BitMatrix bm = null;
+                try {
+                    bm = writer.encode(data, BarcodeFormat.QR_CODE, 150, 150);
+                } catch (WriterException e) {
+                    e.printStackTrace();
+                }
+                Bitmap imageBitmap = Bitmap.createBitmap(150, 150, Bitmap.Config.ARGB_8888);
 
-        for(int i = 0; i < 150; ++i)
-            for(int j = 0; j < 150; ++j)
-                imageBitmap.setPixel(i, j, bm.get(i, j) ? Color.BLACK : Color.WHITE);
+                for (int i = 0; i < 150; ++i)
+                    for (int j = 0; j < 150; ++j)
+                        imageBitmap.setPixel(i, j, bm.get(i, j) ? Color.BLACK : Color.WHITE);
 
-        if(imageBitmap != null)
-        {
-            image.setImageBitmap(imageBitmap);
-        }
-        else
-            Log.i(Constants.Tag, "QR Code Creation Error");
-    }
+                if (imageBitmap != null) {
+                    image.setImageBitmap(imageBitmap);
+                } else
+                    Log.i(Constants.Tag, "QR Code Creation Error");
+            }
 }

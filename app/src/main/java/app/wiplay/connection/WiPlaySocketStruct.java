@@ -42,4 +42,12 @@ public class WiPlaySocketStruct {
         data = OutData.getFirst();
         OutData.removeFirst();
     }
+
+    public void cleanUp()
+    {
+        OutData.clear();
+        OutData = null;
+        InData.clear();
+        InData = null;
+    }
 }

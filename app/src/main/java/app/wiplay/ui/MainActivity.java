@@ -2,7 +2,6 @@ package app.wiplay.ui;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -10,12 +9,9 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.zxing.WriterException;
-
 import app.wiplay.com.wiplay.R;
 import app.wiplay.connection.WiPlayHotSpot;
 import app.wiplay.connection.WiPlayServer;
-import app.wiplay.constants.Constants;
 import app.wiplay.qr.QRWrapper;
 
 
@@ -31,6 +27,8 @@ public class MainActivity extends Activity {
     private Button cancel = null;
     private Button play = null;
     private ImageView imageView = null;
+    WiPlayHotSpot hotspot = null;
+    WiPlayServer server = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -78,11 +76,11 @@ public class MainActivity extends Activity {
                 Toast.makeText(getApplicationContext(), "Start Sharing clicked", Toast.LENGTH_SHORT).show();
 
                 /* start the hotspot */
-                WiPlayHotSpot hotspot = new WiPlayHotSpot(getApplicationContext());
+                hotspot = new WiPlayHotSpot(getApplicationContext());
                 hotspot.StartHotSpot();
 
                 /* start the control & data server */
-                WiPlayServer server = new WiPlayServer(file_path);
+                server = new WiPlayServer(file_path);
                 server.GoLive();
 
                 setContentView(R.layout.qr_code);
@@ -92,16 +90,10 @@ public class MainActivity extends Activity {
 
                  /* Generate QR Code */
                 String data = "";
-                data.concat("HOTSPOT:"+hotspot.getHotspot_name() + "\n");
-                data.concat("PSK:" + hotspot.getHotspot_psk() + "\n");
-                data.concat("HOST:" + server.gethostName());
-                try {
-                    QRWrapper.CreateQR(data, imageView);
-                }
-                catch(WriterException e)
-                {
-
-                }
+                data += "HOTSPOT:"+hotspot.getHotspot_name() + "\n";
+                data += "PSK:" + hotspot.getHotspot_psk() + "\n";
+                data += "HOST:" + server.gethostName() + "\n";
+                QRWrapper.CreateQR(data, imageView);
             }
         });
     }
@@ -111,19 +103,31 @@ public class MainActivity extends Activity {
         file_path = path;
     }
 
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent intent)
+    public void cleanUp()
     {
-        String action  = intent.getStringExtra(Constants.action);
-        Toast.makeText(getApplicationContext(), "Inside ActivityResult "+action, Toast.LENGTH_SHORT).show();
-        if(resultCode == RESULT_OK) {
-            if(action.equals(Constants.ACTION[1]))
-            {
-                Toast.makeText(getApplicationContext(), intent.getStringExtra("SCAN_RESULT_FORMAT"), Toast.LENGTH_SHORT).show();
-                Toast.makeText(getApplicationContext(), intent.getStringExtra("SCAN_RESULT"), Toast.LENGTH_SHORT).show();
-            }
-            else
-                action = ""; //Unhandled cases
+        if(hotspot != null)
+        {
+            hotspot.cleanUp();
+            hotspot = null;
         }
+
+        if(server != null)
+        {
+            server.cleanUp();
+            server = null;
+        }
+        finish();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        cleanUp();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        cleanUp();
     }
 }

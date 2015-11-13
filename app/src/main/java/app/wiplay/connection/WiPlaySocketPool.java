@@ -17,6 +17,7 @@ public class WiPlaySocketPool {
     private Thread reader;
     private Thread writer;
     private WiPlayServer server; //For callback
+    private boolean exitThread;
 
     /* Private Methods */
 
@@ -48,6 +49,7 @@ public class WiPlaySocketPool {
     public WiPlaySocketPool() {
         poolMap = new HashMap<>();
         server = null;
+        exitThread = false;
     }
 
     public WiPlaySocketPool(WiPlayServer s) {
@@ -61,7 +63,7 @@ public class WiPlaySocketPool {
             @Override
             public void run() {
                 /* read in Data from socket */
-                while(true)
+                while(!exitThread)
                 {
                     if(!poolMap.isEmpty())
                     {
@@ -89,7 +91,7 @@ public class WiPlaySocketPool {
             public void run() {
                 /* write data to socket */
 
-                while(true)
+                while(!exitThread)
                 {
                     if(!poolMap.isEmpty())
                     {
@@ -111,6 +113,9 @@ public class WiPlaySocketPool {
                 }
             }
         });
+
+        reader.start();
+        writer.start();
 
     }
     /*
@@ -137,8 +142,18 @@ public class WiPlaySocketPool {
      */
     public void ReadData(Socket socket, byte[] data)
     {
-        /* TODO: Implement */
         poolMap.get(socket).ReadFromIncomingData(data);
+    }
+
+    public void cleanUp()
+    {
+        exitThread = true; /* this will stop the reader and writer thread */
+        Object[] keys = poolMap.keySet().toArray();
+        for( int i = 0; i < keys.length; ++i)
+            poolMap.get(keys[i]).cleanUp();
+        poolMap.clear();
+        poolMap = null;
+        server = null;
     }
 
 }

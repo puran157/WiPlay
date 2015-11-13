@@ -19,6 +19,9 @@ public class WiPlayHotSpot {
     private String hotspot_psk;
     private WifiManager wifiManager;
     private WifiConfiguration netconfig;
+    private Method setWifiApEnabled;
+    private Method getWifiApState;
+    int netID;
 
     public WiPlayHotSpot(Context context)
     {
@@ -26,6 +29,8 @@ public class WiPlayHotSpot {
         hotspot_psk = Constants.GetRandomString(Constants.HOTSPOT_CHAR_LEN);
         wifiManager = (WifiManager)context.getSystemService(context.WIFI_SERVICE);
         netconfig = new WifiConfiguration();
+        netID = -1;
+        setWifiApEnabled = null;
     }
 
     public String getHotspot_name() {
@@ -44,11 +49,12 @@ public class WiPlayHotSpot {
 
         Method[] methods = wifiManager.getClass().getDeclaredMethods();
         boolean method_found = false;
-
+//TODO: hotspot is created without PSK, fix this
         for(Method method: methods)
         {
             if(method.getName().equals("setWifiApEnabled")) {
                 method_found = true;
+                setWifiApEnabled = method;
                 //netconfig.BSSID = hotspot_name;
                 netconfig.SSID = String.format("%s", hotspot_name);
                 netconfig.preSharedKey = String.format("%s", hotspot_psk);
@@ -63,19 +69,20 @@ public class WiPlayHotSpot {
                 netconfig.allowedGroupCiphers.set(WifiConfiguration.GroupCipher.TKIP);
                 try{
                     boolean apstatus = (Boolean)method.invoke(wifiManager, netconfig, true);
+                    int apState = 0;
                     for(Method isWifiApEnabledMethod : methods)
                     {
                         if(isWifiApEnabledMethod.getName().equals("isWifiApEnabled")){
                             while(!(Boolean)isWifiApEnabledMethod.invoke(wifiManager)) {};
                             for(Method method1: methods) {
                                 if(method1.getName().equals("getWifiApState")) {
-                                    int apState;
+                                    getWifiApState = method1;
                                     apState = (Integer)method1.invoke(wifiManager);
                                 }
                             }
                         }
                     }
-                    if(apstatus)
+                    if(apstatus && apState == WifiManager.WIFI_STATE_ENABLED )
                         Log.i(Constants.Tag,"HotSpot Creation Success");
                     else
                         Log.i(Constants.Tag, "HotSpot Creation Error");
@@ -100,16 +107,40 @@ public class WiPlayHotSpot {
 
     /* Connect to HotSpot, to be used by client
     * To be called after setHotspot_name and setHotspot_psk
-    * TODO: ADD MANIFEST PERMISSION FOR WIFI ACCESS
     */
 
     public void ConnectToHotSpot()
     {
         netconfig.SSID = String.format("\"%s\"", hotspot_name);
         netconfig.preSharedKey = String.format("\"%s\"", hotspot_psk);
-        int netID = wifiManager.addNetwork(netconfig);
+        netID = wifiManager.addNetwork(netconfig);
         wifiManager.disconnect();
         wifiManager.enableNetwork(netID, true);
         wifiManager.reconnect();
+    }
+
+    public void cleanUp() {
+        if(netID != -1) {
+            wifiManager.disableNetwork(netID);
+            wifiManager.removeNetwork(netID);
+        }
+        else
+        {
+            boolean apstatus = false;
+            int apState = 0;
+            try {
+                apstatus = (Boolean)setWifiApEnabled.invoke(wifiManager, netconfig, false);
+                apState = (Integer)getWifiApState.invoke(wifiManager);
+            } catch (IllegalAccessException e) {
+                e.printStackTrace();
+            } catch (InvocationTargetException e) {
+                e.printStackTrace();
+            }
+
+            if(apstatus && apState == WifiManager.WIFI_STATE_DISABLED )
+                Log.i(Constants.Tag,"HotSpot CleanUp Success");
+            else
+                Log.i(Constants.Tag, "HotSpot CleanUp Error");
+        }
     }
 }

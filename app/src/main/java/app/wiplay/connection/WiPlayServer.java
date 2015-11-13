@@ -1,7 +1,5 @@
 package app.wiplay.connection;
 
-import java.util.HashMap;
-
 import app.wiplay.filemanager.FileManager;
 
 /**
@@ -17,16 +15,9 @@ public class WiPlayServer {
         file_path = file;
         dataSocket = new WiPlaySocket(this);
         controlSocket = new WiPlaySocket(this);
-        Thread createSocket = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                dataSocket.CreateSocket(false); /* Creates Data server */
-                controlSocket.CreateSocket(true); /* Creates Control server */
-            }
-        });
 
-        createSocket.run();
-
+        dataSocket.CreateSocket(false); /* Creates Data server */
+        controlSocket.CreateSocket(true); /* Creates Control server */
     }
 
     public String gethostName()
@@ -52,8 +43,8 @@ public class WiPlayServer {
             }
         });
 
-        dataListen.run();
-        controlListen.run();
+        dataListen.start();
+        controlListen.start();
     }
 
     public void StartSharingFile()
@@ -70,6 +61,14 @@ public class WiPlayServer {
             }
         });
 
-        startSharingFile.run();
+        startSharingFile.start();
+    }
+
+    public void cleanUp()
+    {
+        dataSocket.cleanUp();
+        controlSocket.cleanUp();
+        dataSocket = null;
+        controlSocket = null;
     }
 }
