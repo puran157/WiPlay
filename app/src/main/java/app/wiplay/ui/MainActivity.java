@@ -9,6 +9,9 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.zxing.integration.android.IntentIntegrator;
+import com.google.zxing.integration.android.IntentResult;
+
 import app.wiplay.com.wiplay.R;
 import app.wiplay.connection.WiPlayHotSpot;
 import app.wiplay.connection.WiPlayServer;
@@ -30,6 +33,10 @@ public class MainActivity extends Activity {
     WiPlayHotSpot hotspot = null;
     WiPlayServer server = null;
 
+    String host_name = null;
+    String hotspot_name = null;
+    String hotspot_psk = null;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -49,7 +56,13 @@ public class MainActivity extends Activity {
         connect.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                //TODO: return the result in onActivityResult
                 Toast.makeText(getApplicationContext(), "Connect clicked", Toast.LENGTH_SHORT).show();
+                //IntentIntegrator scanIntegrator = new IntentIntegrator(MainActivity.this);
+                //scanIntegrator.initiateScan();
+                Intent intent = new Intent("app.wiplay.ui.CAPTURE_ACT");
+                intent.setFlags(0);
+                startActivityForResult(intent, 1);
             }
         });
 
@@ -58,6 +71,7 @@ public class MainActivity extends Activity {
             @Override
             public void onClick(View v) {
                 try {
+                    //TODO: return the result in onActivityResult
                     Intent intent = new Intent(getApplicationContext(), ListFileActivity.class);
                     startActivityForResult(intent, 0);
                 }
@@ -129,5 +143,19 @@ public class MainActivity extends Activity {
     protected void onDestroy() {
         super.onDestroy();
         cleanUp();
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        IntentResult result = IntentIntegrator
+                .parseActivityResult(requestCode, resultCode, data);
+
+        if(result != null)
+        {
+            String content = result.getContents();
+            QRWrapper.ScanQR(host_name, hotspot_name, hotspot_psk, content);
+        }
+        else
+            Toast.makeText(getApplicationContext(), "No data received", Toast.LENGTH_SHORT).show();
     }
 }

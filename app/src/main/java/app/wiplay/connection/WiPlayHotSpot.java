@@ -21,6 +21,7 @@ public class WiPlayHotSpot {
     private WifiConfiguration netconfig;
     private Method setWifiApEnabled;
     private Method getWifiApState;
+    private boolean wasItOn;
     int netID;
 
     public WiPlayHotSpot(Context context)
@@ -31,6 +32,7 @@ public class WiPlayHotSpot {
         netconfig = new WifiConfiguration();
         netID = -1;
         setWifiApEnabled = null;
+        wasItOn = false;
     }
 
     public String getHotspot_name() {
@@ -44,8 +46,10 @@ public class WiPlayHotSpot {
     /* start HotSpot, to be used by server */
     public void StartHotSpot()
     {
-        if(wifiManager.isWifiEnabled())
+        if(wifiManager.isWifiEnabled()) {
             wifiManager.setWifiEnabled(false);
+            wasItOn = true;
+        }
 
         Method[] methods = wifiManager.getClass().getDeclaredMethods();
         boolean method_found = false;
@@ -142,5 +146,8 @@ public class WiPlayHotSpot {
             else
                 Log.i(Constants.Tag, "HotSpot CleanUp Error");
         }
+
+        if(wasItOn)
+            wifiManager.setWifiEnabled(true);
     }
 }

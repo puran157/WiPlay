@@ -4,6 +4,8 @@ package app.wiplay.qr;
  * Created by pchand on 11/10/2015.
  */
 
+import android.app.Activity;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.util.Log;
@@ -13,6 +15,7 @@ import com.google.zxing.BarcodeFormat;
 import com.google.zxing.Writer;
 import com.google.zxing.WriterException;
 import com.google.zxing.common.BitMatrix;
+import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.qrcode.QRCodeWriter;
 
 import app.wiplay.constants.Constants;
@@ -37,5 +40,14 @@ public class QRWrapper {
                     image.setImageBitmap(imageBitmap);
                 } else
                     Log.i(Constants.Tag, "QR Code Creation Error");
-            }
+    }
+
+    public static void ScanQR(String host, String hotspot, String psk, String content)
+    {
+        /* Lets parse the information here */
+        String data[] = content.split("\n");
+        host = data[0].substring(data[0].indexOf(":"));
+        hotspot = data[1].substring(data[0].indexOf(":"));
+        psk = data[2].substring(data[0].indexOf(":"));
+    }
 }
