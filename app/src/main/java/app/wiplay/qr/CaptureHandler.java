@@ -6,7 +6,6 @@ package app.wiplay.qr;
 import android.content.Context;
 import android.os.Handler;
 import android.os.Message;
-import android.widget.Toast;
 import app.wiplay.com.wiplay.R;
 
 /**
@@ -28,7 +27,6 @@ public class CaptureHandler extends Handler {
         switch (msg.what) {
             case R.id.decoded:
                 String data = msg.getData().getString(DECODED_DATA);
-                Toast.makeText(context, data, Toast.LENGTH_LONG).show();
                 if (callback != null){
                     callback.onDecoded(data);
                 }

@@ -28,8 +28,8 @@ public class Constants {
     private final static String ALL_CHAR = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz!@#$%^&*()-";
 
     public final static String FILE_TYPE[]= {"mp3","mp4", "avi", "3gp", "m4a", "mkv" };
-    public final static String action = "ACTION";
-    public final static String ACTION[] = {"FILE_CHOOSE", "QR_SCAN"};
+    public final static int BROWSE = 1;
+    public final static int SCAN = 2;
 
     public static String GetRandomString(int len)
     {

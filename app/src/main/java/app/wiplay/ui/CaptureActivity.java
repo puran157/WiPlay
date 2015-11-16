@@ -22,7 +22,6 @@ import app.wiplay.qr.CameraPreviewView;
  * Capture activity (camera barcode activity)
  */
 public class CaptureActivity extends Activity {
-    public static String PUBLIC_STATIC_STRING_IDENTIFIER;
 
     /**
      * Camera preview view
@@ -118,7 +117,7 @@ public class CaptureActivity extends Activity {
         @Override
         public void onDecoded(String decodedData) {
             Intent resultIntent = new Intent();
-            resultIntent.putExtra("data", decodedData);
+            resultIntent.putExtra("qr_data", decodedData);
             setResult(RESULT_OK, resultIntent);
             finish();
         }

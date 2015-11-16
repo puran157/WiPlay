@@ -15,6 +15,7 @@ import com.google.zxing.integration.android.IntentResult;
 import app.wiplay.com.wiplay.R;
 import app.wiplay.connection.WiPlayHotSpot;
 import app.wiplay.connection.WiPlayServer;
+import app.wiplay.constants.Constants;
 import app.wiplay.qr.QRWrapper;
 
 
@@ -25,7 +26,8 @@ public class MainActivity extends Activity {
     private Button startSharing = null;
     private TextView file = null;
 
-    private static String file_path = null;
+    private String file_path = null;
+    private String qr_data = null;
 
     private Button cancel = null;
     private Button play = null;
@@ -47,22 +49,12 @@ public class MainActivity extends Activity {
         startSharing = (Button)findViewById(R.id.startServer);
         file = (TextView)findViewById(R.id.file_path);
 
-        if(file_path != null) {
-            file.setText(file_path);
-            startSharing.setEnabled(true);
-        }
-
         /* connect ClickHandlers */
         connect.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //TODO: return the result in onActivityResult
-                Toast.makeText(getApplicationContext(), "Connect clicked", Toast.LENGTH_SHORT).show();
-                //IntentIntegrator scanIntegrator = new IntentIntegrator(MainActivity.this);
-                //scanIntegrator.initiateScan();
-                Intent intent = new Intent("app.wiplay.ui.CAPTURE_ACT");
-                intent.setFlags(0);
-                startActivityForResult(intent, 1);
+                Intent intent = new Intent(getApplicationContext(), CaptureActivity.class);
+                startActivityForResult(intent, Constants.SCAN);
             }
         });
 
@@ -71,9 +63,8 @@ public class MainActivity extends Activity {
             @Override
             public void onClick(View v) {
                 try {
-                    //TODO: return the result in onActivityResult
                     Intent intent = new Intent(getApplicationContext(), ListFileActivity.class);
-                    startActivityForResult(intent, 0);
+                    startActivityForResult(intent, Constants.BROWSE);
                 }
                 catch(Exception e)
                 {
@@ -112,11 +103,6 @@ public class MainActivity extends Activity {
         });
     }
 
-    public static void setFile_path(String path)
-    {
-        file_path = path;
-    }
-
     public void cleanUp()
     {
         if(hotspot != null)
@@ -136,7 +122,8 @@ public class MainActivity extends Activity {
     @Override
     protected void onPause() {
         super.onPause();
-        cleanUp();
+        //TODO: Find a way to do cleanup here
+        //cleanUp();
     }
 
     @Override
@@ -147,15 +134,21 @@ public class MainActivity extends Activity {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        IntentResult result = IntentIntegrator
-                .parseActivityResult(requestCode, resultCode, data);
-
-        if(result != null)
-        {
-            String content = result.getContents();
-            QRWrapper.ScanQR(host_name, hotspot_name, hotspot_psk, content);
-        }
+        if(requestCode == Constants.BROWSE)
+            if(resultCode == RESULT_OK) {
+                file_path = data.getStringExtra("path");
+                file.setText(file_path);
+                startSharing.setEnabled(true);
+            }
+            else
+                Toast.makeText(getApplicationContext(), "No File Selected", Toast.LENGTH_SHORT).show();
+        else if(requestCode == Constants.SCAN)
+            if(resultCode == RESULT_OK)
+                qr_data = data.getStringExtra("qr_data");
+            else
+                Toast.makeText(getApplicationContext(), "No Data captured", Toast.LENGTH_SHORT).show();
         else
-            Toast.makeText(getApplicationContext(), "No data received", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getApplicationContext(), "This is impossible", Toast.LENGTH_SHORT).show();
+
     }
 }

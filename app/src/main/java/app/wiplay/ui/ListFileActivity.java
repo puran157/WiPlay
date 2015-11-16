@@ -2,6 +2,7 @@ package app.wiplay.ui;
 
 import android.app.ListActivity;
 import android.content.Intent;
+import android.content.pm.LabeledIntent;
 import android.os.Bundle;
 import android.os.Environment;
 import android.view.View;
@@ -29,12 +30,14 @@ public class ListFileActivity extends ListActivity {
         setContentView(R.layout.activity_list_file);
 
         // Use the current directory as title
-        path = Environment.getExternalStorageDirectory().getAbsolutePath();
+
         //types = new FileTypes(getApplicationContext());
         //Toast.makeText(getApplicationContext(), path, Toast.LENGTH_SHORT).show();
         if (getIntent().hasExtra("path")) {
             path = getIntent().getStringExtra("path");
         }
+        else
+            path = Environment.getExternalStorageDirectory().getAbsolutePath();
         setTitle(path);
 
         // Read all supported files types sorted into the values-array
@@ -73,14 +76,19 @@ public class ListFileActivity extends ListActivity {
         if (new File(filename).isDirectory()) {
             Intent intent = new Intent(this, ListFileActivity.class);
             intent.putExtra("path", filename);
-            startActivity(intent);
-            finish();
+            startActivityForResult(intent, Constants.BROWSE);
         } else {
-            MainActivity.setFile_path(filename);
-            Intent intent = new Intent(this, MainActivity.class);
-            startActivity(intent);
+            Intent intent = new Intent();
+            intent.putExtra("path", filename);
+            setResult(RESULT_OK, intent);
             finish();
         }
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        setResult(RESULT_OK, data);
+        finish();
+    }
 }
