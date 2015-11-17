@@ -11,8 +11,9 @@ import android.widget.Toast;
 
 import app.wiplay.com.wiplay.R;
 import app.wiplay.connection.WiPlayHotSpot;
-import app.wiplay.connection.WiPlayServer;
 import app.wiplay.constants.Constants;
+import app.wiplay.framework.WiPlayMaster;
+import app.wiplay.framework.WiPlaySlaves;
 import app.wiplay.qr.QRWrapper;
 
 
@@ -29,12 +30,13 @@ public class MainActivity extends Activity {
     private Button cancel = null;
     private Button play = null;
     private ImageView imageView = null;
-    WiPlayHotSpot hotspot = null;
-    WiPlayServer server = null;
+    private WiPlayHotSpot hotspot = null;
+    private WiPlayMaster master = null;
 
-    String host_name = null;
-    String hotspot_name = null;
-    String hotspot_psk = null;
+    private String host_name = null;
+    private String hotspot_name = null;
+    private String hotspot_psk = null;
+    private WiPlaySlaves slave;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,6 +47,9 @@ public class MainActivity extends Activity {
         browse = (Button)findViewById(R.id.browse);
         startSharing = (Button)findViewById(R.id.startServer);
         file = (TextView)findViewById(R.id.file_path);
+
+        /* Init hotspot */
+        hotspot = new WiPlayHotSpot(getApplicationContext());
 
         /* connect ClickHandlers */
         connect.setOnClickListener(new View.OnClickListener() {
@@ -88,18 +93,16 @@ public class MainActivity extends Activity {
     public void StartServer()
     {
         /* start the hotspot */
-        hotspot = new WiPlayHotSpot(getApplicationContext());
         hotspot.StartHotSpot();
 
         /* start the control & data server */
-        //server = new WiPlayServer(file_path, false, null);
-       // server.GoLive();
+        master = new WiPlayMaster(file_path);
 
         /* Generate QR Code */
         String data = "";
         data += "HOTSPOT:"+hotspot.getHotspot_name() + "\n";
         data += "PSK:" + hotspot.getHotspot_psk() + "\n";
-        data += "HOST:" + server.gethostName() + "\n";
+        data += "HOST:" + master.getHostName() + "\n";
         QRWrapper.CreateQR(data, imageView);
     }
 
@@ -110,6 +113,16 @@ public class MainActivity extends Activity {
          * Connect to server
          * Start receving the file
          * Start Playing the file */
+
+        QRWrapper.ScanQR(host_name,hotspot_name, hotspot_psk, qr_data);
+        hotspot.setHotspot(hotspot_name, hotspot_psk);
+        hotspot.ConnectToHotSpot();
+
+        slave = new WiPlaySlaves(host_name);
+
+        /* Ask the file
+        * TODO: ERROR CHECK */
+        slave.AskFile();
     }
 
     public void cleanUp()
@@ -120,10 +133,10 @@ public class MainActivity extends Activity {
             hotspot = null;
         }
 
-        if(server != null)
+        if(master != null)
         {
-            server.cleanUp();
-            server = null;
+            master.cleanUp();
+            master = null;
         }
         finish();
     }

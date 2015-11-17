@@ -14,7 +14,7 @@ public class WiPlayMaster {
     private String file_path;
     private boolean exitThread;
 
-    WiPlayMaster(String file)
+    public WiPlayMaster(String file)
     {
         dataServer = new WiPlayServer();
         controlServer = new WiPlayServer();
@@ -40,6 +40,11 @@ public class WiPlayMaster {
         dataListen.start();
         controlListen.start();
 
+    }
+
+    public String getHostName()
+    {
+        return dataServer.gethostName();
     }
 
     public void SendFile(WiPlaySocket dataSocket, WiPlaySocket controlSocket)

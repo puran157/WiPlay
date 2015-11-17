@@ -10,7 +10,7 @@ public class WiPlaySlaves {
     private WiPlayClient dataSock;
     private WiPlayClient controlSock;
 
-    WiPlaySlaves(String host)
+    public WiPlaySlaves(String host)
     {
         dataSock = new WiPlayClient(null, host);
         controlSock = new WiPlayClient(null, host);

@@ -46,6 +46,11 @@ public class QRWrapper {
     {
         /* Lets parse the information here */
         String data[] = content.split("\n");
+        if(data == null || data[0] == null)
+        {
+            Log.i(Constants.Tag, "Inavlid data from QR Scanner");
+            return;
+        }
         host = data[0].substring(data[0].indexOf(":"));
         hotspot = data[1].substring(data[0].indexOf(":"));
         psk = data[2].substring(data[0].indexOf(":"));

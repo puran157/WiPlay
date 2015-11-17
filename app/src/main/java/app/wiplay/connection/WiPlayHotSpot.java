@@ -123,6 +123,12 @@ public class WiPlayHotSpot {
         wifiManager.reconnect();
     }
 
+    public void setHotspot(String hotspot_name, String hotspot_psk)
+    {
+        this.hotspot_name = hotspot_name;
+        this.hotspot_psk = hotspot_psk;
+    }
+
     public void cleanUp() {
         if(netID != -1) {
             wifiManager.disableNetwork(netID);
