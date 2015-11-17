@@ -1,74 +1,42 @@
 package app.wiplay.connection;
 
-import app.wiplay.filemanager.FileManager;
+import java.net.Socket;
 
 /**
  * Created by pchand on 11/12/2015.
  */
-public class WiPlayServer {
-    private String file_path;
-    private WiPlaySocket dataSocket;
-    private WiPlaySocket controlSocket;
+public class WiPlayServer extends WiPlaySocket {
+    private WiPlaySocketPool pool;
 
-    public WiPlayServer(String file)
+    public WiPlayServer()
     {
-        file_path = file;
-        dataSocket = new WiPlaySocket(this);
-        controlSocket = new WiPlaySocket(this);
-
-        dataSocket.CreateSocket(false); /* Creates Data server */
-        controlSocket.CreateSocket(true); /* Creates Control server */
+        super();
+        pool = new WiPlaySocketPool();
     }
+
+    public WiPlaySocketPool getPool() { return pool;}
 
     public String gethostName()
     {
-        return dataSocket.getHostname(); /* return anyones hostname string */
+        return super.getHostname();
     }
 
-    public void GoLive()
+    public void Listen()
     {
-        Thread dataListen = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                while(true)
-                    dataSocket.Listen();
+        if(getServerSocket() != null) {
+            try {
+                Socket clientSock = getServerSocket().accept();
+                pool.AddToPool(new WiPlayClient(clientSock));
+            } catch (Exception e) {
+
             }
-        });
-
-        Thread controlListen = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                while(true)
-                    controlSocket.Listen();
-            }
-        });
-
-        dataListen.start();
-        controlListen.start();
-    }
-
-    public void StartSharingFile()
-    {
-        Thread startSharingFile = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                FileManager fileManager = new FileManager(file_path);
-                fileManager.Initialise();
-                int bytesRead = -1;
-                while(bytesRead != 0)
-                    fileManager.SendChunk(bytesRead);
-                fileManager.DeInit();
-            }
-        });
-
-        startSharingFile.start();
+        }
     }
 
     public void cleanUp()
     {
-        dataSocket.cleanUp();
-        controlSocket.cleanUp();
-        dataSocket = null;
-        controlSocket = null;
+        super.cleanUp();
+        pool.cleanUp();
+        pool = null;
     }
 }

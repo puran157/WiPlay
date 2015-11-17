@@ -41,8 +41,11 @@ public class PacketParser {
         /* Stop the video, delete the tmp file, close control plain connection also */
     }
 
-    public static void ParsePacket(byte[] data)
+    public static void ParsePacket(byte[] data, WiPlaySocket socket)
     {
+        if(data == null)
+            return;
+
         if(data[0] == Constants.ASK_FILE)
             ParseAskPacket(data);
         else if(data[0] == Constants.SEND_FILE)

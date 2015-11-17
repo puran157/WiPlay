@@ -1,8 +1,7 @@
 package app.wiplay.connection;
 
-import java.io.IOException;
 import java.net.Socket;
-import java.util.HashMap;
+import java.util.ArrayList;
 
 /**
  * Created by pchand on 10/19/2015.
@@ -13,9 +12,7 @@ import java.util.HashMap;
 public class WiPlaySocketPool {
 
     /* Private Data Members */
-    private HashMap<Socket, WiPlaySocketStruct> poolMap;
-    private Thread reader;
-    private Thread writer;
+    private ArrayList<WiPlaySocketStruct> poolList;
     private WiPlayServer server; //For callback
     private boolean exitThread;
 
@@ -36,10 +33,10 @@ public class WiPlaySocketPool {
 
     /* Public Methods */
 
-    public HashMap<Socket, WiPlaySocketStruct> getPoolMap()
+    /*public HashMap<Socket, WiPlaySocketStruct> getPoolMap()
     {
         return poolMap;
-    }
+    }*/
 
     /* This method will start two threads, reader and writer
      * Reader will read from socket and write it to map
@@ -47,23 +44,24 @@ public class WiPlaySocketPool {
      * TODO: Increase the number of threads if connections exceeds threshold/ or we will not make in singleton
      */
     public WiPlaySocketPool() {
-        poolMap = new HashMap<>();
+        poolList = new ArrayList<>();
         server = null;
         exitThread = false;
     }
 
-    public WiPlaySocketPool(WiPlayServer s) {
-        poolMap = new HashMap<>();
+    /*public WiPlaySocketPool(WiPlayServer s) {
+        poolList = new ArrayList<>();
         server = s;
-    }
+        exitThread = false;
+    }*/
 
     public void StartThreads() {
 
-        reader = new Thread(new Runnable() {
+        /*reader = new Thread(new Runnable() {
             @Override
             public void run() {
                 /* read in Data from socket */
-                while(!exitThread)
+                /*while(!exitThread)
                 {
                     if(!poolMap.isEmpty())
                     {
@@ -72,7 +70,7 @@ public class WiPlaySocketPool {
                         {
                             /* Algo
                             * Read the BUFFER_SIZE - available bytes for now */
-                            try {
+                           /* try {
                                 WiPlaySocketStruct struct = poolMap.get(keys[i]);
                                 byte[] arr = null;
                                 ((Socket) keys[i]).getInputStream().read(arr, 0, arr.length);
@@ -91,7 +89,7 @@ public class WiPlaySocketPool {
             public void run() {
                 /* write data to socket */
 
-                while(!exitThread)
+                /*while(!exitThread)
                 {
                     if(!poolMap.isEmpty())
                     {
@@ -101,7 +99,7 @@ public class WiPlaySocketPool {
                         {
                             /* Algo
                             * Write the available bytes for now */
-                            try {
+                           /* try {
                                 WiPlaySocketStruct struct = poolMap.get(keys[i]);
                                 byte[] arr = null;
                                 struct.ReadFromMap(arr);
@@ -115,45 +113,43 @@ public class WiPlaySocketPool {
         });
 
         reader.start();
-        writer.start();
+        writer.start();*/
 
     }
     /*
     * New Socket will be added to the pool
     * */
-    public void AddToPool(Socket socket)
+    public void AddToPool(WiPlaySocket socket)
     {
-        WiPlaySocketStruct struct = new WiPlaySocketStruct();
-        poolMap.put(socket, struct);
-        if(server != null)
-            server.StartSharingFile();
+        WiPlaySocketStruct struct = new WiPlaySocketStruct(socket);
+        poolList.add(struct);
     }
 
     /* Write data to the socketpool Map
      */
-    public void SendData(Socket socket, byte[] data)
+   /* public void SendData(Socket socket, byte[] data)
     {
         poolMap.get(socket).PushToOutGoingData(data);
-    }
+    }*/
 
     /*
         Read data from Socket pool map
         TODO: Is it really required?
      */
-    public void ReadData(Socket socket, byte[] data)
+    /*public void ReadData(Socket socket, byte[] data)
     {
         poolMap.get(socket).ReadFromIncomingData(data);
-    }
+    }*/
 
     public void cleanUp()
     {
         exitThread = true; /* this will stop the reader and writer thread */
-        Object[] keys = poolMap.keySet().toArray();
-        for( int i = 0; i < keys.length; ++i)
-            poolMap.get(keys[i]).cleanUp();
-        poolMap.clear();
-        poolMap = null;
-        server = null;
+//        Object[] keys = poolMap.keySet().toArray();
+//        for( int i = 0; i < keys.length; ++i)
+//            poolMap.get(keys[i]).cleanUp();
+//        poolMap.clear();
+//        poolMap = null;
+//        server = null;
     }
 
 }

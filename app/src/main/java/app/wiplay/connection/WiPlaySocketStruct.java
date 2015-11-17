@@ -9,38 +9,87 @@ public class WiPlaySocketStruct {
 
     private LinkedList<byte[]> OutData;
     private LinkedList<byte[]> InData;
+    private WiPlaySocket sock;
     private int offSet;
+    private boolean exitThread;
+    private Thread callback;
+    private Thread reader;
+    private Thread writer;
 
-    public WiPlaySocketStruct()
+    public WiPlaySocketStruct(WiPlaySocket socket)
     {
         OutData = new LinkedList<>();
         InData = new LinkedList<>();
         offSet = 0;
+        exitThread = false;
+        sock = socket;
+
+        callback = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                while(!exitThread)
+                {
+                    CallbackImpl();
+                }
+            }
+        });
+        callback.start();
+
+        writer = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                while(!exitThread)
+                {
+                    sock.SendData(PopFromOutData());
+                }
+            }
+        });
+
+        reader = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                while (!exitThread) {
+                    byte [] data = null;
+                    if(sock.ReadData(data) > 0)
+                        PushToInData(data);
+                }
+            }
+        });
     }
 
-    public boolean PushToOutGoingData(byte[] data)
+    public void PushToOutData(byte[] data)
     {
         OutData.addLast(data);
         offSet += data.length;
-        return true;
     }
 
-    public boolean ReadFromIncomingData(byte[] data)
+    public byte[] PopFromOutData()
     {
-        data = InData.getFirst();
-        InData.removeFirst();
-        return true;
+        if(OutData.isEmpty())
+            return null;
+        byte[] data = OutData.getFirst();
+        OutData.removeFirst();
+        return data;
     }
 
-    public void WriteToMap(byte[] data)
+    public void PushToInData(byte[] data)
     {
         InData.addLast(data);
     }
 
-    public void ReadFromMap(byte[] data)
+    public byte[] PopFromInData()
     {
-        data = OutData.getFirst();
-        OutData.removeFirst();
+        if(InData.isEmpty())
+            return null;
+        byte[] data = InData.getFirst();
+        InData.removeFirst();
+        return data;
+    }
+
+
+    public void CallbackImpl()
+    {
+            PacketParser.ParsePacket(PopFromInData(), sock);
     }
 
     public void cleanUp()
@@ -49,5 +98,6 @@ public class WiPlaySocketStruct {
         OutData = null;
         InData.clear();
         InData = null;
+        exitThread = true;
     }
 }

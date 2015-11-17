@@ -22,6 +22,10 @@ public class FileManager {
         file_path = path;
     }
 
+    public int GetOffset()
+    {
+        return startOffset;
+    }
     public void Initialise()
     {
         file = new File(file_path);
@@ -36,7 +40,7 @@ public class FileManager {
         }
     }
 
-    public byte[] SendChunk(int bytesRead)
+    public byte[] GetChunk(int bytesRead)
     {
         char[] data = new char[Constants.BUFFER_SIZE];
         try {

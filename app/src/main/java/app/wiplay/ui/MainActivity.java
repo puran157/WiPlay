@@ -9,9 +9,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.zxing.integration.android.IntentIntegrator;
-import com.google.zxing.integration.android.IntentResult;
-
 import app.wiplay.com.wiplay.R;
 import app.wiplay.connection.WiPlayHotSpot;
 import app.wiplay.connection.WiPlayServer;
@@ -79,28 +76,40 @@ public class MainActivity extends Activity {
             @Override
             public void onClick(View v) {
                 Toast.makeText(getApplicationContext(), "Start Sharing clicked", Toast.LENGTH_SHORT).show();
-
-                /* start the hotspot */
-                hotspot = new WiPlayHotSpot(getApplicationContext());
-                hotspot.StartHotSpot();
-
-                /* start the control & data server */
-                server = new WiPlayServer(file_path);
-                server.GoLive();
-
                 setContentView(R.layout.qr_code);
                 play = (Button)findViewById(R.id.play);
                 cancel = (Button)findViewById(R.id.cancel);
                 imageView = (ImageView)findViewById(R.id.imageView);
-
-                 /* Generate QR Code */
-                String data = "";
-                data += "HOTSPOT:"+hotspot.getHotspot_name() + "\n";
-                data += "PSK:" + hotspot.getHotspot_psk() + "\n";
-                data += "HOST:" + server.gethostName() + "\n";
-                QRWrapper.CreateQR(data, imageView);
+                StartServer();
             }
         });
+    }
+
+    public void StartServer()
+    {
+        /* start the hotspot */
+        hotspot = new WiPlayHotSpot(getApplicationContext());
+        hotspot.StartHotSpot();
+
+        /* start the control & data server */
+        //server = new WiPlayServer(file_path, false, null);
+       // server.GoLive();
+
+        /* Generate QR Code */
+        String data = "";
+        data += "HOTSPOT:"+hotspot.getHotspot_name() + "\n";
+        data += "PSK:" + hotspot.getHotspot_psk() + "\n";
+        data += "HOST:" + server.gethostName() + "\n";
+        QRWrapper.CreateQR(data, imageView);
+    }
+
+
+    public void StartClient()
+    {
+        /* Get Server Details from QR
+         * Connect to server
+         * Start receving the file
+         * Start Playing the file */
     }
 
     public void cleanUp()
@@ -143,8 +152,10 @@ public class MainActivity extends Activity {
             else
                 Toast.makeText(getApplicationContext(), "No File Selected", Toast.LENGTH_SHORT).show();
         else if(requestCode == Constants.SCAN)
-            if(resultCode == RESULT_OK)
+            if(resultCode == RESULT_OK) {
                 qr_data = data.getStringExtra("qr_data");
+                StartClient();
+            }
             else
                 Toast.makeText(getApplicationContext(), "No Data captured", Toast.LENGTH_SHORT).show();
         else

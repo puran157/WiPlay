@@ -14,10 +14,10 @@ import app.wiplay.constants.Constants;
  */
 public class PacketCreator {
 
-    public static byte CreateAskPacket()
+    public static byte[] CreateAskPacket()
     {
-        Byte packet;
-        packet = Constants.ASK_FILE;
+        byte packet[] = new byte[1];
+        packet[0] = Constants.ASK_FILE;
         return packet;
     }
 
@@ -42,9 +42,10 @@ public class PacketCreator {
         return out.toByteArray();
     }
 
-    public static byte CreateFileDonePacket()
+    public static byte[] CreateFileDonePacket()
     {
-        byte packet = Constants.FILE_DONE;
+        byte[] packet = new byte[1];
+        packet[0] = Constants.FILE_DONE;
         return packet;
     }
 
@@ -77,9 +78,10 @@ public class PacketCreator {
         return out.toByteArray();
     }
 
-    public static byte CreateStopPacket()
+    public static byte[] CreateStopPacket()
     {
-        byte control_p = Constants.STOP;
+        byte control_p[] = new byte[1];
+        control_p[0] = Constants.STOP;
         return control_p;
     }
 }

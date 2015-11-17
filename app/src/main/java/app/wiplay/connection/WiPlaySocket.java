@@ -17,7 +17,7 @@ public class WiPlaySocket {
     private Object socket;
     private String hostname;
     private boolean isServer;
-    private WiPlaySocketPool pool;
+    private WiPlaySocketStruct queue;
     /* Private Methods */
 
     /* Public Methods */
@@ -25,24 +25,35 @@ public class WiPlaySocket {
     public WiPlaySocket()
     {
         socket = null;
-        hostname = null;
-        pool = new WiPlaySocketPool();
-        this.isServer = false;
+        hostname = "";
+        isServer = true;
+        queue = null;
     }
 
-    public WiPlaySocket(WiPlayServer sock)
+    public WiPlaySocket(Socket sock, String host)
     {
-        socket = null;
-        hostname = null;
-        pool = new WiPlaySocketPool(sock);
-        this.isServer = true;
+        socket = sock;
+        isServer = false;
+        hostname = host;
+        queue = new WiPlaySocketStruct(this);
     }
 
     public String getHostname()
     {
         return hostname;
     }
-    public WiPlaySocketPool getPool() { return pool;}
+
+    public Socket getClientSocket()
+    {
+        return (Socket)socket;
+    }
+
+    public ServerSocket getServerSocket()
+    {
+        return (ServerSocket)socket;
+    }
+
+
 
     /* this call will take care for Bind, Connect */
     public void CreateSocket(boolean isControl)
@@ -59,10 +70,12 @@ public class WiPlaySocket {
             }
             else {
                 /* Its a client Socket */
-                if(isControl)
-                    socket  = new Socket(hostname, Constants.CONTROL_PORT);
-                else
-                    socket  = new Socket(hostname, Constants.DATA_PORT);
+                if(isControl) {
+                    socket = new Socket(hostname, Constants.CONTROL_PORT);
+                }
+                else {
+                    socket = new Socket(hostname, Constants.DATA_PORT);
+                }
             }
         }
         catch(IOException e) {
@@ -70,26 +83,34 @@ public class WiPlaySocket {
         }
     }
 
-    public void Listen()
+    public void Send(byte[] data)
     {
-        if(socket != null) {
-            try {
-                Socket clientSock = ((ServerSocket) socket).accept();
-                pool.AddToPool((clientSock));
-            } catch (Exception e) {
+        queue.PushToOutData(data);
+    }
 
-            }
+    public void SendData(byte[] data) {
+        if (data == null){
+            Log.i(Constants.Tag, "No data to send\n");
+            return;
+        }
+        try {
+            this.getClientSocket().getOutputStream().write(data, 0, data.length);
+        } catch (IOException e) {
+            Log.i(Constants.Tag, "Exception happened while sending \n");
+            e.printStackTrace();
         }
     }
 
-    public void SendData(Socket sock, byte[] data)
+    public int ReadData(byte[] data)
     {
-        pool.SendData(sock, data);
-    }
-
-    public void ReadData(Socket sock, byte[] data)
-    {
-        pool.ReadData(sock, data);
+        //pool.ReadData(sock, data);
+        int read = 0;
+        try {
+            read =  this.getClientSocket().getInputStream().read(data, 0, data.length);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return read;
     }
 
     public String getWifiApIpAddress() {
@@ -117,7 +138,9 @@ public class WiPlaySocket {
 
     public void cleanUp()
     {
-        pool.cleanUp();
         socket = null;
+        queue.cleanUp();
+        queue = null;
+        hostname = null;
     }
 }
