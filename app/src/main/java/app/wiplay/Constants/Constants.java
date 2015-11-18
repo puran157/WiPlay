@@ -13,6 +13,7 @@ public class Constants {
     public final static String Tag="WiPlay";
     public final static int BUFFER_SIZE = 2*2048;
     public final static int HOTSPOT_CHAR_LEN = 12;
+    public final static String tmp_file = "/sdcard/tmp_wiplay";
     public enum WiPlayEvent {
         CONNECTING,
         CONNECTED,

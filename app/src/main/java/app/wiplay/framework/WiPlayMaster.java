@@ -44,7 +44,7 @@ public class WiPlayMaster {
     public void SendFile(WiPlaySocket dataSocket)
     {
         FileManager fileManager = new FileManager(file_path);
-        fileManager.Initialise();
+        fileManager.InitialiseReader();
         int bytesRead = -1;
         while(bytesRead != 0) {
             int start = fileManager.GetOffset();

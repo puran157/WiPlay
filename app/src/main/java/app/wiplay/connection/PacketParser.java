@@ -3,7 +3,7 @@ package app.wiplay.connection;
 import android.util.Log;
 
 import app.wiplay.constants.Constants;
-import app.wiplay.framework.WiPlayMaster;
+import app.wiplay.filemanager.FileManager;
 
 /**
  * Created by pchand on 10/22/2015.
@@ -20,11 +20,30 @@ public class PacketParser {
                 socket.getCallbackMaster().SendFile(socket);
             }
         });
+        t.start();
     }
 
     private static void ParseFilePacket(byte[] data, WiPlaySocket socket)
     {
         /* start storing the packets into some tmp file */
+        FileManager f = new FileManager(Constants.tmp_file);
+        int length =        (data[1]<<24)&0xff000000|
+                            (data[2]<<16)&0x00ff0000|
+                            (data[3]<< 8)&0x0000ff00|
+                            (data[4]<< 0)&0x000000ff;
+        int offset =        (data[5]<<24)&0xff000000|
+                            (data[6]<<16)&0x00ff0000|
+                            (data[7]<< 8)&0x0000ff00|
+                            (data[8]<< 0)&0x000000ff;
+
+        byte[] buffer = new byte[length];
+
+        for(int i = 0; i < length; ++i)
+            buffer[i] = data[9+i];
+
+        f.InitialiseWriter();
+        f.WriteChunk(buffer, offset);
+        f.DeInit();
     }
 
     private static void ParseFileDonePacket(byte[] data, WiPlaySocket socket)
