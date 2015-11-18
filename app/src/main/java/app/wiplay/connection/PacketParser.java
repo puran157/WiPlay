@@ -3,6 +3,7 @@ package app.wiplay.connection;
 import android.util.Log;
 
 import app.wiplay.constants.Constants;
+import app.wiplay.framework.WiPlayMaster;
 
 /**
  * Created by pchand on 10/22/2015.
@@ -10,35 +11,43 @@ import app.wiplay.constants.Constants;
  */
 public class PacketParser {
 
-    private static void ParseAskPacket(byte[] data)
+    private static void ParseAskPacket(byte[] data, final WiPlaySocket socket)
     {
         /* start sending the file to this client */
+        Thread t = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                socket.getCallbackMaster().SendFile(socket);
+            }
+        });
     }
 
-    private static void ParseFilePacket(byte[] data)
+    private static void ParseFilePacket(byte[] data, WiPlaySocket socket)
     {
         /* start storing the packets into some tmp file */
     }
 
-    private static void ParseFileDonePacket(byte[] data)
+    private static void ParseFileDonePacket(byte[] data, WiPlaySocket socket)
     {
         /* we can drop the data plain connection  in case of clients
         * In case of server we need to send play Command to all clients */
     }
 
-    private static void ParsePlayPacket(byte[] data)
+    private static void ParsePlayPacket(byte[] data, WiPlaySocket socket)
     {
         /* start playing the video */
     }
 
-    private static void ParsePausePacket(byte[] data)
+    private static void ParsePausePacket(byte[] data, WiPlaySocket socket)
     {
         /* Pause the video and set the head to the time stamp received */
     }
 
-    private static void ParseStopPacket(byte[] data)
+    private static void ParseStopPacket(byte[] data, WiPlaySocket socket)
     {
         /* Stop the video, delete the tmp file, close control plain connection also */
+        //TODO: Stop the video check if master is not null
+        socket.getCallbackMaster().cleanUp();
     }
 
     public static void ParsePacket(byte[] data, WiPlaySocket socket)
@@ -47,17 +56,17 @@ public class PacketParser {
             return;
 
         if(data[0] == Constants.ASK_FILE)
-            ParseAskPacket(data);
+            ParseAskPacket(data, socket);
         else if(data[0] == Constants.SEND_FILE)
-            ParseFilePacket(data);
+            ParseFilePacket(data, socket);
         else if(data[0] == Constants.FILE_DONE)
-            ParseFileDonePacket(data);
+            ParseFileDonePacket(data, socket);
         else if(data[0] == Constants.PLAY)
-            ParsePlayPacket(data);
+            ParsePlayPacket(data, socket);
         else if(data[0] == Constants.PAUSE)
-            ParsePausePacket(data);
+            ParsePausePacket(data, socket);
         else if (data[0] == Constants.STOP)
-            ParseStopPacket(data);
+            ParseStopPacket(data, socket);
         else
             Log.e(Constants.Tag, "Invalid Packet");
     }

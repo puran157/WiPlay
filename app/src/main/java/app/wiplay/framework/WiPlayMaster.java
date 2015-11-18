@@ -10,16 +10,15 @@ import app.wiplay.filemanager.FileManager;
  */
 public class WiPlayMaster {
     private WiPlayServer dataServer;
-    private WiPlayServer controlServer;
-    private String file_path;
+    //private WiPlayServer controlServer;
+    public static String file_path;
     private boolean exitThread;
 
-    public WiPlayMaster(String file)
+    public WiPlayMaster()
     {
-        dataServer = new WiPlayServer();
-        controlServer = new WiPlayServer();
+        dataServer = new WiPlayServer(this);
+        //controlServer = new WiPlayServer();
         exitThread = false;
-        file_path = file;
 
         Thread dataListen = new Thread(new Runnable() {
             @Override
@@ -29,25 +28,20 @@ public class WiPlayMaster {
             }
         });
 
-        Thread controlListen = new Thread(new Runnable() {
+        /*Thread controlListen = new Thread(new Runnable() {
             @Override
             public void run() {
                 while(!exitThread)
                     controlServer.Listen();
             }
-        });
+        });*/
 
         dataListen.start();
-        controlListen.start();
+        //controlListen.start();
 
     }
 
-    public String getHostName()
-    {
-        return dataServer.gethostName();
-    }
-
-    public void SendFile(WiPlaySocket dataSocket, WiPlaySocket controlSocket)
+    public void SendFile(WiPlaySocket dataSocket)
     {
         FileManager fileManager = new FileManager(file_path);
         fileManager.Initialise();
@@ -56,30 +50,35 @@ public class WiPlayMaster {
             int start = fileManager.GetOffset();
             dataSocket.SendData(PacketCreator.CreateFilePacket(start, bytesRead, fileManager.GetChunk(bytesRead)));
         }
-        controlSocket.SendData(PacketCreator.CreateFileDonePacket());
+        dataSocket.SendData(PacketCreator.CreateFileDonePacket());
         fileManager.DeInit();
+    }
+
+    public String getHostName()
+    {
+        return dataServer.gethostName();
     }
 
     public void PlayFile(int time)
     {
-        controlServer.SendData(PacketCreator.CreatePlayPacket(time));
+        dataServer.SendData(PacketCreator.CreatePlayPacket(time));
     }
 
     public void Pause(int time)
     {
-        controlServer.SendData(PacketCreator.CreatePausePacket(time));
+        dataServer.SendData(PacketCreator.CreatePausePacket(time));
     }
 
     public void Stop()
     {
-        controlServer.SendData(PacketCreator.CreateStopPacket());
+        dataServer.SendData(PacketCreator.CreateStopPacket());
     }
 
     public void cleanUp()
     {
         exitThread = true;
         dataServer.cleanUp();
-        controlServer.cleanUp();
+        //controlServer.cleanUp();
         file_path = null;
     }
 }

@@ -7,6 +7,7 @@ import java.net.*;
 import java.util.Enumeration;
 
 import app.wiplay.constants.Constants;
+import app.wiplay.framework.WiPlayMaster;
 
 /**
  * Created by pchand on 10/19/2015.
@@ -18,29 +19,37 @@ public class WiPlaySocket {
     private String hostname;
     private boolean isServer;
     private WiPlaySocketStruct queue;
+    private WiPlayMaster callbackMaster;
     /* Private Methods */
 
     /* Public Methods */
 
-    public WiPlaySocket()
+    public WiPlaySocket(WiPlayMaster callback)
     {
         socket = null;
         hostname = "";
         isServer = true;
         queue = null;
+        callbackMaster = callback;
     }
 
-    public WiPlaySocket(Socket sock, String host)
+    public WiPlaySocket(Socket sock, String host, WiPlayMaster callback)
     {
         socket = sock;
         isServer = false;
         hostname = host;
         queue = new WiPlaySocketStruct(this);
+        callbackMaster = callback;
     }
 
     public String getHostname()
     {
         return hostname;
+    }
+
+    public WiPlayMaster getCallbackMaster()
+    {
+        return callbackMaster;
     }
 
     public Socket getClientSocket()
@@ -101,12 +110,24 @@ public class WiPlaySocket {
         }
     }
 
+    public int PacketType()
+    {
+        try {
+            if(this.getClientSocket().getInputStream().available() > 0)
+                return this.getClientSocket().getInputStream().read();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return -1;
+    }
+
     public int ReadData(byte[] data)
     {
         //pool.ReadData(sock, data);
         int read = 0;
         try {
-            read =  this.getClientSocket().getInputStream().read(data, 0, data.length);
+            if(this.getClientSocket().getInputStream().available() > 0)
+                read =  this.getClientSocket().getInputStream().read(data, 0, data.length);
         } catch (IOException e) {
             e.printStackTrace();
         }

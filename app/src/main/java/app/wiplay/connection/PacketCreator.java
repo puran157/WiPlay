@@ -1,6 +1,7 @@
 package app.wiplay.connection;
 
 import android.support.v4.content.res.TypedArrayUtils;
+import android.util.Log;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -83,5 +84,24 @@ public class PacketCreator {
         byte control_p[] = new byte[1];
         control_p[0] = Constants.STOP;
         return control_p;
+    }
+
+    public static void AllocateBuffer(int type, byte[] buffer)
+    {
+        if(type == Constants.ASK_FILE)
+            buffer = new byte[1];
+        else if(type == Constants.SEND_FILE)
+            buffer = new byte[Constants.BUFFER_SIZE + 9];
+        else if(type == Constants.FILE_DONE)
+            buffer = new byte[1];
+        else if(type == Constants.PLAY || type == Constants.PAUSE)
+            buffer = new byte[5];
+        else if (type == Constants.STOP)
+            buffer = new byte[1];
+        else {
+            Log.e(Constants.Tag, "Invalid Packet");
+            return;
+        }
+        buffer[0] = (byte)type;
     }
 }

@@ -8,26 +8,26 @@ import app.wiplay.connection.WiPlayClient;
  */
 public class WiPlaySlaves {
     private WiPlayClient dataSock;
-    private WiPlayClient controlSock;
+    //private WiPlayClient controlSock;
 
     public WiPlaySlaves(String host)
     {
-        dataSock = new WiPlayClient(null, host);
-        controlSock = new WiPlayClient(null, host);
+       //TODO:FIX this dataSock = new WiPlayClient(null, host);
+        dataSock = new WiPlayClient(null, host, null);
     }
 
     public void AskFile()
     {
-        controlSock.SendData(PacketCreator.CreateAskPacket());
+        dataSock.SendData(PacketCreator.CreateAskPacket());
     }
 
     public void Play(int time)
     {
-        controlSock.SendData(PacketCreator.CreatePlayPacket(time));
+        dataSock.SendData(PacketCreator.CreatePlayPacket(time));
     }
 
     public void Pause(int time)
     {
-        controlSock.SendData(PacketCreator.CreatePausePacket(time));
+        dataSock.SendData(PacketCreator.CreatePausePacket(time));
     }
 }

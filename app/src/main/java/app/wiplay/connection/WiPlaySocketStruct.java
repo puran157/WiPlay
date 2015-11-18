@@ -2,6 +2,8 @@ package app.wiplay.connection;
 
 import java.util.LinkedList;
 
+import app.wiplay.constants.Constants;
+
 /**
  * Created by pchand on 10/19/2015.
  */
@@ -50,8 +52,10 @@ public class WiPlaySocketStruct {
             public void run() {
                 while (!exitThread) {
                     byte [] data = null;
-                    if(sock.ReadData(data) > 0)
-                        PushToInData(data);
+                    PacketCreator.AllocateBuffer(sock.PacketType(), data);
+                    if(data.length > 1)
+                        sock.ReadData(data);
+                    PushToInData(data);
                 }
             }
         });

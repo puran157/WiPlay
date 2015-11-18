@@ -2,15 +2,18 @@ package app.wiplay.connection;
 
 import java.net.Socket;
 
+import app.wiplay.filemanager.FileManager;
+import app.wiplay.framework.WiPlayMaster;
+
 /**
  * Created by pchand on 11/12/2015.
  */
 public class WiPlayServer extends WiPlaySocket {
     private WiPlaySocketPool pool;
 
-    public WiPlayServer()
+    public WiPlayServer(WiPlayMaster callback)
     {
-        super();
+        super(callback);
         pool = new WiPlaySocketPool();
     }
 
@@ -26,7 +29,7 @@ public class WiPlayServer extends WiPlaySocket {
         if(getServerSocket() != null) {
             try {
                 Socket clientSock = getServerSocket().accept();
-                pool.AddToPool(new WiPlayClient(clientSock));
+                pool.AddToPool(new WiPlayClient(clientSock, this.getCallbackMaster()));
             } catch (Exception e) {
 
             }
