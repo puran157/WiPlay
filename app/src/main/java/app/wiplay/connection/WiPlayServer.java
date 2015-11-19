@@ -15,6 +15,7 @@ public class WiPlayServer extends WiPlaySocket {
     {
         super(callback);
         pool = new WiPlaySocketPool();
+        CreateSocket(true);
     }
 
     public WiPlaySocketPool getPool() { return pool;}

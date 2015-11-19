@@ -83,7 +83,7 @@ public class WiPlaySocketStruct {
 
     public byte[] PopFromInData()
     {
-        if(InData.isEmpty())
+        if(InData == null || InData.isEmpty())
             return null;
         byte[] data = InData.getFirst();
         InData.removeFirst();

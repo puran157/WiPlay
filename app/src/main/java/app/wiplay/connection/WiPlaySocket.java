@@ -85,6 +85,7 @@ public class WiPlaySocket {
                 else {
                     socket = new Socket(hostname, Constants.DATA_PORT);
                 }
+                Log.i(Constants.Tag, "Client connected @"+hostname);
             }
         }
         catch(IOException e) {
@@ -159,9 +160,19 @@ public class WiPlaySocket {
 
     public void cleanUp()
     {
+        try {
+            if(isServer)
+                getServerSocket().close();
+            else
+                getClientSocket().close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         socket = null;
-        queue.cleanUp();
-        queue = null;
+        if(queue != null) {
+            queue.cleanUp();
+            queue = null;
+        }
         hostname = null;
     }
 }

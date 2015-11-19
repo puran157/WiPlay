@@ -30,4 +30,10 @@ public class WiPlaySlaves {
     {
         dataSock.SendData(PacketCreator.CreatePausePacket(time));
     }
+
+    public void cleanUp()
+    {
+        dataSock.cleanUp();
+        dataSock = null;
+    }
 }

@@ -12,10 +12,12 @@ public class WiPlayClient extends WiPlaySocket {
     public WiPlayClient(Socket sock, WiPlayMaster callback)
     {
         super(sock, "", callback);
+        //CreateSocket(true);
     }
 
     public WiPlayClient(Socket sock, String host, WiPlayMaster callback)
     {
         super(sock, host, callback);
+        CreateSocket(true);
     }
 }

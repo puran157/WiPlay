@@ -1,8 +1,11 @@
 package app.wiplay.framework;
 
+import android.util.Log;
+
 import app.wiplay.connection.PacketCreator;
 import app.wiplay.connection.WiPlayServer;
 import app.wiplay.connection.WiPlaySocket;
+import app.wiplay.constants.Constants;
 import app.wiplay.filemanager.FileManager;
 
 /**
@@ -23,6 +26,7 @@ public class WiPlayMaster {
         Thread dataListen = new Thread(new Runnable() {
             @Override
             public void run() {
+                Log.i(Constants.Tag, "Server Listening");
                 while(!exitThread)
                     dataServer.Listen();
             }
