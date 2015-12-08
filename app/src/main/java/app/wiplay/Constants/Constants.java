@@ -12,6 +12,7 @@ public class Constants {
     public final static int DATA_PORT = 2570;
     public final static String Tag="WiPlay";
     public final static int BUFFER_SIZE = 2*2048;
+    public final static int THRESHOLD_BEFORE_PLAY = 10*1024*1024;
     public final static int HOTSPOT_CHAR_LEN = 12;
     public final static String tmp_file = "/sdcard/tmp_wiplay";
     public enum WiPlayEvent {

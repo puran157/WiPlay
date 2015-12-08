@@ -97,7 +97,7 @@ public class MainActivity extends Activity {
 
         WiPlayMaster.file_path = file_path;
         /* start the control & data server */
-        master = new WiPlayMaster();
+        master = new WiPlayMaster(getApplicationContext());
 
         /* Generate QR Code */
         String data = "";

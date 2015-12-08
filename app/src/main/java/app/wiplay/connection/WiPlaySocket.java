@@ -54,12 +54,18 @@ public class WiPlaySocket {
 
     public Socket getClientSocket()
     {
-        return (Socket)socket;
+        if(isServer == false)
+            return (Socket)socket;
+        else
+            return null;
     }
 
     public ServerSocket getServerSocket()
     {
-        return (ServerSocket)socket;
+        if(isServer == true)
+            return (ServerSocket)socket;
+        else
+            return null;
     }
 
 

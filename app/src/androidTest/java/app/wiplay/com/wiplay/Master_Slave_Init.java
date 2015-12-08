@@ -1,6 +1,7 @@
 package app.wiplay.com.wiplay;
 
 import android.app.Application;
+import android.content.Context;
 import android.test.ApplicationTestCase;
 import android.util.Log;
 
@@ -29,8 +30,8 @@ public class Master_Slave_Init extends ApplicationTestCase<Application> {
     protected void runTest() throws Throwable {
         Log.i(Constants.Tag, "Starting test");
         super.runTest();
-        master = new WiPlayMaster();
         Thread.sleep(5000);
+        master = new WiPlayMaster(null);
         slave1 = new WiPlaySlaves("localhost");
         slave2 = new WiPlaySlaves("localhost");
         slave1.cleanUp();

@@ -1,9 +1,12 @@
 package app.wiplay.connection;
 
+import android.content.Intent;
 import android.util.Log;
 
 import app.wiplay.constants.Constants;
 import app.wiplay.filemanager.FileManager;
+import app.wiplay.ui.FilePlay;
+import app.wiplay.ui.MainActivity;
 
 /**
  * Created by pchand on 10/22/2015.
@@ -44,12 +47,20 @@ public class PacketParser {
         f.InitialiseWriter();
         f.WriteChunk(buffer, offset);
         f.DeInit();
+
+        /* if we've got enough file. lets broadcast play command and start playing video */
+        if(offset >= Constants.THRESHOLD_BEFORE_PLAY)
+        {
+            if(socket.getCallbackMaster() != null) {
+                socket.getCallbackMaster().PlayFile(0);
+            }
+        }
     }
 
     private static void ParseFileDonePacket(byte[] data, WiPlaySocket socket)
     {
-        /* we can drop the data plain connection  in case of clients
-        * In case of server we need to send play Command to all clients */
+        /* we can drop the data plain connection  in case of clients */
+        return;
     }
 
     private static void ParsePlayPacket(byte[] data, WiPlaySocket socket)
