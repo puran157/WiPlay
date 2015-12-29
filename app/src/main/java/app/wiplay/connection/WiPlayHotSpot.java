@@ -63,14 +63,18 @@ public class WiPlayHotSpot {
                 netconfig.SSID = String.format("%s", hotspot_name);
                 netconfig.preSharedKey = String.format("%s", hotspot_psk);
                 netconfig.hiddenSSID = true;
+                netconfig.status = WifiConfiguration.Status.ENABLED;
                 netconfig.allowedAuthAlgorithms.set(WifiConfiguration.AuthAlgorithm.OPEN);
-                //netconfig.allowedProtocols.set(WifiConfiguration.Protocol.RSN);
+                netconfig.allowedProtocols.set(WifiConfiguration.Protocol.RSN);
                 netconfig.allowedProtocols.set(WifiConfiguration.Protocol.WPA);
-                netconfig.allowedProtocols.set(WifiConfiguration.KeyMgmt.WPA_PSK);
+                netconfig.allowedKeyManagement.set(WifiConfiguration.KeyMgmt.WPA_PSK);
+                netconfig.allowedKeyManagement.set(WifiConfiguration.KeyMgmt.WPA_EAP);
                 netconfig.allowedPairwiseCiphers.set(WifiConfiguration.PairwiseCipher.CCMP);
                 netconfig.allowedPairwiseCiphers.set(WifiConfiguration.PairwiseCipher.TKIP);
                 netconfig.allowedGroupCiphers.set(WifiConfiguration.GroupCipher.CCMP);
                 netconfig.allowedGroupCiphers.set(WifiConfiguration.GroupCipher.TKIP);
+                netconfig.allowedGroupCiphers.set(WifiConfiguration.GroupCipher.WEP104);
+                netconfig.allowedGroupCiphers.set(WifiConfiguration.GroupCipher.WEP40);
                 try{
                     boolean apstatus = (Boolean)method.invoke(wifiManager, netconfig, true);
                     int apState = 0;

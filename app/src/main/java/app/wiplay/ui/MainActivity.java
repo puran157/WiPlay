@@ -86,6 +86,15 @@ public class MainActivity extends Activity {
                 cancel = (Button)findViewById(R.id.cancel);
                 imageView = (ImageView)findViewById(R.id.imageView);
                 StartServer();
+
+                cancel.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        setContentView(R.layout.activity_main);
+                        cleanUp();
+                    }
+                });
+
             }
         });
     }
