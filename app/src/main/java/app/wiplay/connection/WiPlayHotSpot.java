@@ -20,7 +20,6 @@ public class WiPlayHotSpot {
     private WifiManager wifiManager;
     private WifiConfiguration netconfig;
     private Method setWifiApEnabled;
-    private Method getWifiApState;
     private boolean wasItOn;
     int netID;
 
@@ -77,20 +76,13 @@ public class WiPlayHotSpot {
                 netconfig.allowedGroupCiphers.set(WifiConfiguration.GroupCipher.WEP40);
                 try{
                     boolean apstatus = (Boolean)method.invoke(wifiManager, netconfig, true);
-                    int apState = 0;
                     for(Method isWifiApEnabledMethod : methods)
                     {
                         if(isWifiApEnabledMethod.getName().equals("isWifiApEnabled")){
                             while(!(Boolean)isWifiApEnabledMethod.invoke(wifiManager)) {};
-                            for(Method method1: methods) {
-                                if(method1.getName().equals("getWifiApState")) {
-                                    getWifiApState = method1;
-                                    apState = (Integer)method1.invoke(wifiManager);
-                                }
-                            }
                         }
                     }
-                    if(apstatus && apState == WifiManager.WIFI_STATE_ENABLED )
+                    if(apstatus )
                         Log.i(Constants.Tag,"HotSpot Creation Success");
                     else
                         Log.i(Constants.Tag, "HotSpot Creation Error");
@@ -141,17 +133,15 @@ public class WiPlayHotSpot {
         else
         {
             boolean apstatus = false;
-            int apState = 0;
             try {
                 apstatus = (Boolean)setWifiApEnabled.invoke(wifiManager, netconfig, false);
-                apState = (Integer)getWifiApState.invoke(wifiManager);
             } catch (IllegalAccessException e) {
                 e.printStackTrace();
             } catch (InvocationTargetException e) {
                 e.printStackTrace();
             }
 
-            if(apstatus && apState == WifiManager.WIFI_STATE_DISABLED )
+            if(apstatus)
                 Log.i(Constants.Tag,"HotSpot CleanUp Success");
             else
                 Log.i(Constants.Tag, "HotSpot CleanUp Error");
@@ -159,5 +149,11 @@ public class WiPlayHotSpot {
 
         if(wasItOn)
             wifiManager.setWifiEnabled(true);
+
+        wifiManager = null;
+        netconfig = null;
+        setWifiApEnabled = null;
+        hotspot_psk = null;
+        hotspot_name = null;
     }
 }

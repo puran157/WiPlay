@@ -101,19 +101,23 @@ public class MainActivity extends Activity {
 
     public void StartServer()
     {
-        /* start the hotspot */
-        hotspot.StartHotSpot();
 
-        WiPlayMaster.file_path = file_path;
+
+                /* start the hotspot */
+                hotspot.StartHotSpot();
+
+                WiPlayMaster.file_path = file_path;
         /* start the control & data server */
-        master = new WiPlayMaster(getApplicationContext());
+                master = new WiPlayMaster(getApplicationContext());
 
-        /* Generate QR Code */
-        String data = "";
-        data += "HOTSPOT:"+hotspot.getHotspot_name() + "\n";
-        data += "PSK:" + hotspot.getHotspot_psk() + "\n";
-        data += "HOST:" + master.getHostName() + "\n";
-        QRWrapper.CreateQR(data, imageView);
+            /* Generate QR Code */
+                String data = "";
+                data += "HOTSPOT:"+hotspot.getHotspot_name() + "\n";
+                data += "PSK:" + hotspot.getHotspot_psk() + "\n";
+                data += "HOST:" + master.getHostName() + "\n";
+                QRWrapper.CreateQR(data, imageView);
+
+
     }
 
 
@@ -137,18 +141,24 @@ public class MainActivity extends Activity {
 
     public void cleanUp()
     {
-        if(hotspot != null)
-        {
-            hotspot.cleanUp();
-            hotspot = null;
-        }
+        Thread cleanUp = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                if(hotspot != null)
+                {
+                    hotspot.cleanUp();
+                    hotspot = null;
+                }
 
-        if(master != null)
-        {
-            master.cleanUp();
-            master = null;
-        }
-        finish();
+                if(master != null)
+                {
+                    master.cleanUp();
+                    master = null;
+                }
+            }
+        });
+
+        cleanUp.start();
     }
 
     @Override
