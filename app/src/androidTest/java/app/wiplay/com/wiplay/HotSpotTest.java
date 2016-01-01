@@ -15,13 +15,13 @@ import app.wiplay.ui.MainActivity;
 /**
  * Created by pchand on 12/29/2015.
  */
-public class HotSpotTest  extends ActivityUnitTestCase<MainActivity> {
+public class HotSpotTest  extends ApplicationTestCase<Application> {
 
     private WiPlayHotSpot hotspot;
     private Context c;
 
     public HotSpotTest() {
-        super(MainActivity.class);
+        super(Application.class);
         //mApp.startActivity(new Intent(mApp.getApplicationContext(), MainActivity.class));
     }
 
@@ -29,17 +29,47 @@ public class HotSpotTest  extends ActivityUnitTestCase<MainActivity> {
     protected void setUp() throws Exception
     {
         super.setUp();
-        startActivity(new Intent(getInstrumentation().getTargetContext(), MainActivity.class), null, null);
-        c = getActivity().getApplicationContext();
+        c = getSystemContext();
     }
 
     @Override
     protected void runTest() throws Throwable
     {
         super.runTest();
+
+        assertEquals(true,CreateHotspot());
+        StartHotspot();
+        CleanUp();
+    }
+    
+    boolean CreateHotspot()
+    {
+        assertNotNull(c);
         hotspot = new WiPlayHotSpot(c);
+        if(hotspot != null)
+            return true;
+        else
+            return false;
+    }
+
+    void StartHotspot()
+    {
+        assertNotNull(hotspot);
         hotspot.StartHotSpot();
     }
+
+    void Connect()
+    {
+        assertNotNull(hotspot);
+        hotspot.ConnectToHotSpot();
+    }
+
+    void CleanUp()
+    {
+        assertNotNull(hotspot);
+        hotspot.cleanUp();
+    }
+
 
     @Override
     protected void tearDown() throws Exception {

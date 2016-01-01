@@ -111,12 +111,24 @@ public class WiPlayHotSpot {
 
     public void ConnectToHotSpot()
     {
-        netconfig.SSID = String.format("\"%s\"", hotspot_name);
-        netconfig.preSharedKey = String.format("\"%s\"", hotspot_psk);
-        netID = wifiManager.addNetwork(netconfig);
-        wifiManager.disconnect();
-        wifiManager.enableNetwork(netID, true);
-        wifiManager.reconnect();
+        if(hotspot_name.equals(null) || hotspot_psk.equals(null))
+        {
+            Log.i(Constants.Tag, "hotspot name or psk is null");
+            return;
+        }
+        else if(setWifiApEnabled != null)
+        {
+            Log.i(Constants.Tag, "We've alreayd have a hotspot in place");
+            return;
+        }
+        else {
+            netconfig.SSID = String.format("\"%s\"", hotspot_name);
+            netconfig.preSharedKey = String.format("\"%s\"", hotspot_psk);
+            netID = wifiManager.addNetwork(netconfig);
+            wifiManager.disconnect();
+            wifiManager.enableNetwork(netID, true);
+            wifiManager.reconnect();
+        }
     }
 
     public void setHotspot(String hotspot_name, String hotspot_psk)
