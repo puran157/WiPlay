@@ -18,8 +18,9 @@ public class WiPlayMaster {
     private WiPlayServer dataServer;
     private Context context;
     //private WiPlayServer controlServer;
-    public static String file_path;
+    private String file_path;
     private boolean exitThread;
+    private FileManager fileManager;
 
     public WiPlayMaster(Context c)
     {
@@ -27,7 +28,7 @@ public class WiPlayMaster {
         //controlServer = new WiPlayServer();
         exitThread = false;
         context = c;
-
+        fileManager = null;
         Thread dataListen = new Thread(new Runnable() {
             @Override
             public void run() {
@@ -52,8 +53,6 @@ public class WiPlayMaster {
 
     public void SendFile(WiPlaySocket dataSocket)
     {
-        FileManager fileManager = new FileManager(file_path);
-        fileManager.InitialiseReader();
         int bytesRead = -1;
         while(bytesRead != 0) {
             int start = fileManager.GetOffset();
@@ -84,6 +83,15 @@ public class WiPlayMaster {
     public void Stop()
     {
         dataServer.SendData(PacketCreator.CreateStopPacket());
+    }
+
+    public void setFile_path(String path)
+    {
+        if(fileManager != null) {
+            fileManager.DeInit();
+        }
+        fileManager = new FileManager(path);
+        fileManager.InitialiseReader();
     }
 
     public void cleanUp()

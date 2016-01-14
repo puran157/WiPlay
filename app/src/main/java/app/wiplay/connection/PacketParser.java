@@ -14,9 +14,18 @@ import app.wiplay.ui.MainActivity;
  */
 public class PacketParser {
 
+    private static FilePlay video_instance;
+
     private static void ParseAskPacket(byte[] data, final WiPlaySocket socket)
     {
         /* start sending the file to this client */
+
+        if(socket.getCallbackMaster() == null)
+        {
+            Log.e(Constants.Tag, "Client can't send Ask Packet");
+            return;
+        }
+
         Thread t = new Thread(new Runnable() {
             @Override
             public void run() {
@@ -66,17 +75,35 @@ public class PacketParser {
     private static void ParsePlayPacket(byte[] data, WiPlaySocket socket)
     {
         /* start playing the video */
+
+        int time =      (data[1]<<24)&0xff000000|
+                        (data[2]<<16)&0x00ff0000|
+                        (data[3]<< 8)&0x0000ff00|
+                        (data[4]<< 0)&0x000000ff;
+
+        if(video_instance != null)
+            video_instance.PlayVideo(time);
+
     }
 
     private static void ParsePausePacket(byte[] data, WiPlaySocket socket)
     {
         /* Pause the video and set the head to the time stamp received */
+        int time =      (data[1]<<24)&0xff000000|
+                (data[2]<<16)&0x00ff0000|
+                (data[3]<< 8)&0x0000ff00|
+                (data[4]<< 0)&0x000000ff;
+        if(video_instance != null)
+            video_instance.PauseVideo(time);
     }
 
     private static void ParseStopPacket(byte[] data, WiPlaySocket socket)
     {
         /* Stop the video, delete the tmp file, close control plain connection also */
-        //TODO: Stop the video check if master is not null
+        if(video_instance != null) {
+            video_instance.StopVideo();
+            video_instance = null;
+        }
         socket.getCallbackMaster().cleanUp();
     }
 
@@ -99,5 +126,10 @@ public class PacketParser {
             ParseStopPacket(data, socket);
         else
             Log.e(Constants.Tag, "Invalid Packet");
+    }
+
+    public static void SetFilePlay(FilePlay filePlay)
+    {
+        video_instance = filePlay;
     }
 }

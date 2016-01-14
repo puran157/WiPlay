@@ -105,10 +105,9 @@ public class MainActivity extends Activity {
 
                 /* start the hotspot */
                 hotspot.StartHotSpot();
-
-                WiPlayMaster.file_path = file_path;
         /* start the control & data server */
                 master = new WiPlayMaster(getApplicationContext());
+                master.setFile_path(file_path);
 
             /* Generate QR Code */
                 String data = "";
