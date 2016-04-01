@@ -1,46 +1,75 @@
 package app.wiplay.connection;
 
-import java.net.Socket;
+import android.content.Context;
+import android.util.Log;
 
+import java.net.Socket;
+import java.util.ArrayList;
+
+import app.wiplay.constants.Constants;
 import app.wiplay.filemanager.FileManager;
-import app.wiplay.framework.WiPlayMaster;
 
 /**
  * Created by pchand on 11/12/2015.
  */
 public class WiPlayServer extends WiPlaySocket {
-    private WiPlaySocketPool pool;
+    private ArrayList<WiPlayClient> pool;
+    private String file_path;
+    private Context context;
 
-    public WiPlayServer(WiPlayMaster callback)
+    public WiPlayServer(Context c)
     {
-        super(callback);
-        pool = new WiPlaySocketPool();
-        CreateSocket(true);
+        pool = new ArrayList<>(Constants.MAX_CLIENTS);
+        context = c;
     }
 
-    public WiPlaySocketPool getPool() { return pool;}
-
-    public String gethostName()
+    public void setFile_path(String f)
     {
-        return super.getHostname();
+        file_path = f;
     }
 
     public void Listen()
     {
-        if(getServerSocket() != null) {
-            try {
-                Socket clientSock = getServerSocket().accept();
-                pool.AddToPool(new WiPlayClient(clientSock, this.getCallbackMaster()));
-            } catch (Exception e) {
+        Log.i(Constants.Tag, "Server Listening");
+        Thread dataListen = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                boolean exitThread = false;
+                while (!exitThread) {
+                    if (getServerSocket() != null) {
+                        if (pool.size() < Constants.MAX_CLIENTS) {
+                            try {
+                                Socket clientSock = getServerSocket().accept();
+                                pool.add(new WiPlayClient(clientSock, WiPlayServer.this));
+                            } catch (Exception e) {
 
+                            }
+                        } else {
+                            exitThread = true;
+                            Log.e(Constants.Tag, "Maximum clients limit reached, stop listening for more connection");
+                        }
+                    }
+                }
             }
+        });
+
+        dataListen.start();
+    }
+
+    public void SendFile(final WiPlayClient client)
+    {
+        FileManager fManager = new FileManager(file_path);
+        int bytesRead = -1;
+        while(bytesRead != 0) {
+            int start = fManager.GetOffset();
+            byte[] data = fManager.GetChunk(bytesRead);
+            client.Send(PacketCreator.CreateFilePacket(start, bytesRead, data));
         }
     }
 
     public void cleanUp()
     {
         super.cleanUp();
-        pool.cleanUp();
         pool = null;
     }
 }

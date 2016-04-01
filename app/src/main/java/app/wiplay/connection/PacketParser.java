@@ -20,7 +20,7 @@ public class PacketParser {
     {
         /* start sending the file to this client */
 
-        if(socket.getCallbackMaster() == null)
+        if(socket.getCallbackServer() == null)
         {
             Log.e(Constants.Tag, "Client can't send Ask Packet");
             return;
@@ -29,7 +29,7 @@ public class PacketParser {
         Thread t = new Thread(new Runnable() {
             @Override
             public void run() {
-                socket.getCallbackMaster().SendFile(socket);
+                socket.getCallbackServer().SendFile((WiPlayClient)socket);
             }
         });
         t.start();
@@ -60,15 +60,14 @@ public class PacketParser {
         /* if we've got enough file. lets broadcast play command and start playing video */
         if(offset >= Constants.THRESHOLD_BEFORE_PLAY)
         {
-            if(socket.getCallbackMaster() != null) {
-                socket.getCallbackMaster().PlayFile(0);
-            }
+
         }
     }
 
     private static void ParseFileDonePacket(byte[] data, WiPlaySocket socket)
     {
         /* we can drop the data plain connection  in case of clients */
+        ((WiPlayClient)socket).setCanBeServer(true);
         return;
     }
 
@@ -104,7 +103,7 @@ public class PacketParser {
             video_instance.StopVideo();
             video_instance = null;
         }
-        socket.getCallbackMaster().cleanUp();
+        socket.cleanUp();
     }
 
     public static void ParsePacket(byte[] data, WiPlaySocket socket)

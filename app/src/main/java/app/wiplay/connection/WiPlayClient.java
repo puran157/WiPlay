@@ -2,22 +2,27 @@ package app.wiplay.connection;
 
 import java.net.Socket;
 
-import app.wiplay.framework.WiPlayMaster;
 
 /**
  * Created by pchand on 11/17/2015.
  */
 public class WiPlayClient extends WiPlaySocket {
 
-    public WiPlayClient(Socket sock, WiPlayMaster callback)
+    private boolean canBeServer;
+
+    public WiPlayClient(String host, WiPlayServer server)
     {
-        super(sock, "", callback);
-        //CreateSocket(true);
+        super(host, server);
+        canBeServer = false;
     }
 
-    public WiPlayClient(Socket sock, String host, WiPlayMaster callback)
+    public WiPlayClient(Socket s, WiPlayServer server)
     {
-        super(sock, host, callback);
-        CreateSocket(true);
+        super(s, server);
+    }
+
+    public void setCanBeServer(boolean flag)
+    {
+        canBeServer = flag;
     }
 }

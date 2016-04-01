@@ -7,7 +7,6 @@ import java.net.*;
 import java.util.Enumeration;
 
 import app.wiplay.constants.Constants;
-import app.wiplay.framework.WiPlayMaster;
 
 /**
  * Created by pchand on 10/19/2015.
@@ -19,23 +18,33 @@ public class WiPlaySocket {
     private String hostname;
     private boolean isServer;
     private WiPlaySocketStruct queue;
-    private WiPlayMaster callbackMaster;
+    private WiPlayServer callbackMaster;
     /* Private Methods */
 
     /* Public Methods */
 
-    public WiPlaySocket(WiPlayMaster callback)
+    public WiPlaySocket()
     {
         socket = null;
         hostname = "";
         isServer = true;
         queue = null;
-        callbackMaster = callback;
+        callbackMaster = null;
+        CreateSocket();
+    }
+    public WiPlaySocket(Socket s, WiPlayServer server)
+    {
+        socket = s;
+        hostname = "";
+        isServer = false;
+        queue = new WiPlaySocketStruct(this);
+        callbackMaster = server;
+        CreateSocket();
     }
 
-    public WiPlaySocket(Socket sock, String host, WiPlayMaster callback)
+    public WiPlaySocket(String host, WiPlayServer callback)
     {
-        socket = sock;
+        socket = null;
         isServer = false;
         hostname = host;
         queue = new WiPlaySocketStruct(this);
@@ -47,7 +56,7 @@ public class WiPlaySocket {
         return hostname;
     }
 
-    public WiPlayMaster getCallbackMaster()
+    public WiPlayServer getCallbackServer()
     {
         return callbackMaster;
     }
@@ -71,31 +80,28 @@ public class WiPlaySocket {
 
 
     /* this call will take care for Bind, Connect */
-    public void CreateSocket(boolean isControl)
+    public void CreateSocket()
     {
+        if(socket != null) {
+            Log.e(Constants.Tag, "Socket is already created");
+            return;
+        }
         try {
             if (isServer) {
-                if(isControl)
                     socket = new ServerSocket(Constants.CONTROL_PORT);
-                else
-                    socket = new ServerSocket(Constants.DATA_PORT);
                 //hostname = ((ServerSocket) socket).getLocalSocketAddress().toString();
                 hostname = getWifiApIpAddress();
                 Log.i(Constants.Tag,"Server Socket created @"+hostname);
             }
             else {
                 /* Its a client Socket */
-                if(isControl) {
                     socket = new Socket(hostname, Constants.CONTROL_PORT);
-                }
-                else {
-                    socket = new Socket(hostname, Constants.DATA_PORT);
-                }
-                Log.i(Constants.Tag, "Client connected @"+hostname);
+                    Log.i(Constants.Tag, "Client connected @"+hostname);
             }
         }
         catch(IOException e) {
             Log.i(Constants.Tag, "CreateSocket Exception " + e);
+            socket = null;
         }
     }
 

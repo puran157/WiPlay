@@ -32,6 +32,7 @@ public class Constants {
     public final static String FILE_TYPE[]= {"mp3","mp4", "avi", "3gp", "m4a", "mkv" };
     public final static int BROWSE = 1;
     public final static int SCAN = 2;
+    public final static int MAX_CLIENTS = 10;
 
     public static String GetRandomString(int len)
     {

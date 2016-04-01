@@ -10,10 +10,12 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import app.wiplay.com.wiplay.R;
+import app.wiplay.connection.WiPlayClient;
 import app.wiplay.connection.WiPlayHotSpot;
+import app.wiplay.connection.WiPlayServer;
 import app.wiplay.constants.Constants;
-import app.wiplay.framework.WiPlayMaster;
-import app.wiplay.framework.WiPlaySlaves;
+
+import app.wiplay.framework.WiPlayFramework;
 import app.wiplay.qr.QRWrapper;
 
 
@@ -31,12 +33,13 @@ public class MainActivity extends Activity {
     private Button play = null;
     private ImageView imageView = null;
     private WiPlayHotSpot hotspot = null;
-    private WiPlayMaster master = null;
 
     private String host_name = null;
     private String hotspot_name = null;
     private String hotspot_psk = null;
-    private WiPlaySlaves slave;
+
+    WiPlayFramework framework = null;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,8 +51,9 @@ public class MainActivity extends Activity {
         startSharing = (Button)findViewById(R.id.startServer);
         file = (TextView)findViewById(R.id.file_path);
 
-        /* Init hotspot */
+        /* Init hotspot & framework */
         hotspot = new WiPlayHotSpot(getApplicationContext());
+        framework = new WiPlayFramework(getApplicationContext());
 
         /* connect ClickHandlers */
         connect.setOnClickListener(new View.OnClickListener() {
@@ -103,18 +107,18 @@ public class MainActivity extends Activity {
     {
 
 
-                /* start the hotspot */
-                hotspot.StartHotSpot();
-        /* start the control & data server */
-                master = new WiPlayMaster(getApplicationContext());
-                master.setFile_path(file_path);
+        /* start the hotspot */
+        hotspot.StartHotSpot();
+        framework.setFile_path(file_path);
+        framework.Init(true, "");
 
-            /* Generate QR Code */
-                String data = "";
-                data += "HOTSPOT:"+hotspot.getHotspot_name() + "\n";
-                data += "PSK:" + hotspot.getHotspot_psk() + "\n";
-                data += "HOST:" + master.getHostName() + "\n";
-                QRWrapper.CreateQR(data, imageView);
+
+        /* Generate QR Code */
+        String data = "";
+        data += "HOTSPOT:"+hotspot.getHotspot_name() + "\n";
+        data += "PSK:" + hotspot.getHotspot_psk() + "\n";
+        data += "HOST:" + framework.getHost_name() + "\n";
+        QRWrapper.CreateQR(data, imageView);
 
 
     }
@@ -127,15 +131,15 @@ public class MainActivity extends Activity {
          * Start receving the file
          * Start Playing the file */
 
-        QRWrapper.ScanQR(host_name,hotspot_name, hotspot_psk, qr_data);
+        QRWrapper.ScanQR(host_name, hotspot_name, hotspot_psk, qr_data);
         hotspot.setHotspot(hotspot_name, hotspot_psk);
         hotspot.ConnectToHotSpot();
 
-        slave = new WiPlaySlaves(host_name);
+        //slave = new WiPlaySlaves(host_name);
 
         /* Ask the file
         * TODO: ERROR CHECK */
-        slave.AskFile();
+        //slave.AskFile();
     }
 
     public void cleanUp()
@@ -149,10 +153,10 @@ public class MainActivity extends Activity {
                     hotspot = null;
                 }
 
-                if(master != null)
+                if(framework != null)
                 {
-                    master.cleanUp();
-                    master = null;
+                    framework.cleanUp();
+                    framework = null;
                 }
             }
         });

@@ -48,8 +48,8 @@ public class FilePlay extends Activity {
                 //TODO: extend this to all client
                 int time = getCurrentPosition();
 
-                if(socket.getCallbackMaster() != null)
-                    socket.getCallbackMaster().PlayFile(time);
+                /*if(socket.getCallbackMaster() != null)
+                    socket.getCallbackMaster().PlayFile(time);*/
             }
 
             @Override
@@ -59,8 +59,8 @@ public class FilePlay extends Activity {
                 //TODO: Extend this functionality to client also
                 int time = getCurrentPosition();
 
-                if(socket.getCallbackMaster() != null)
-                    socket.getCallbackMaster().Pause(time);
+                /*if(socket.getCallbackMaster() != null)
+                    socket.getCallbackMaster().Pause(time);*/
             }
 
             @Override
