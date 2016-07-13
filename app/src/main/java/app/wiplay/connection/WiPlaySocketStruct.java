@@ -11,25 +11,24 @@ public class WiPlaySocketStruct {
 
     private LinkedList<byte[]> OutData;
     private LinkedList<byte[]> InData;
-    private WiPlaySocket sock;
+    private WiPlayClient sock;
     private int offSet;
-    private boolean exitThread;
     private Thread callback;
     private Thread reader;
     private Thread writer;
 
-    public WiPlaySocketStruct(WiPlaySocket socket)
+    public WiPlaySocketStruct(WiPlayClient socket)
     {
         OutData = new LinkedList<>();
         InData = new LinkedList<>();
         offSet = 0;
-        exitThread = false;
+        //exitThread = false;
         sock = socket;
 
         callback = new Thread(new Runnable() {
             @Override
             public void run() {
-                while(!exitThread)
+                while(!Constants.exitAll)
                 {
                     CallbackImpl();
                 }
@@ -40,9 +39,9 @@ public class WiPlaySocketStruct {
         writer = new Thread(new Runnable() {
             @Override
             public void run() {
-                while(!exitThread)
+                while(!Constants.exitAll)
                 {
-                    sock.SendData(PopFromOutData());
+//                    sock.Write(PopFromOutData());
                 }
             }
         });
@@ -50,11 +49,11 @@ public class WiPlaySocketStruct {
         reader = new Thread(new Runnable() {
             @Override
             public void run() {
-                while (!exitThread) {
+                while (!Constants.exitAll) {
                     byte [] data = null;
-                    PacketCreator.AllocateBuffer(sock.PacketType(), data);
+                    //PacketCreator.AllocateBuffer(sock.PacketType(), data);
                     if(data.length > 1)
-                        sock.ReadData(data);
+                        //sock.Read(data);
                     PushToInData(data);
                 }
             }
@@ -102,6 +101,6 @@ public class WiPlaySocketStruct {
         OutData = null;
         InData.clear();
         InData = null;
-        exitThread = true;
+        Constants.exitAll = true;
     }
 }

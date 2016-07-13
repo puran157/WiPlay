@@ -15,6 +15,7 @@ public class Constants {
     public final static int THRESHOLD_BEFORE_PLAY = 10*1024*1024;
     public final static int HOTSPOT_CHAR_LEN = 12;
     public final static String tmp_file = "/sdcard/tmp_wiplay";
+    public final static int WORKER = 4;
     public enum WiPlayEvent {
         CONNECTING,
         CONNECTED,
@@ -32,7 +33,8 @@ public class Constants {
     public final static String FILE_TYPE[]= {"mp3","mp4", "avi", "3gp", "m4a", "mkv" };
     public final static int BROWSE = 1;
     public final static int SCAN = 2;
-    public final static int MAX_CLIENTS = 10;
+    public final static int MAX_CLIENTS = 1;
+    public static boolean exitAll = false;
 
     public static String GetRandomString(int len)
     {

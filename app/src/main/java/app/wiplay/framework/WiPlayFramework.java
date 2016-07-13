@@ -22,28 +22,18 @@ public class WiPlayFramework {
     private WiPlayServer server;
     private WiPlayClient client;
     private Context context;
-    private String file_path;
+    public static String file_path;
     private boolean exitThread;
-    private String host_name;
 
     public WiPlayFramework(Context c)
     {
         server = null;
         exitThread = false;
         context = c;
-        host_name = null;
     }
 
-    public void Init(boolean isServer, String host_name)
+    public void Init(boolean isServer)
     {
-        if(isServer) {
-            server = new WiPlayServer(context);
-            server.Listen();
-        }
-        else {
-            client = new WiPlayClient(host_name, null);
-            client.Send(PacketCreator.CreateAskPacket());
-        }
 
     }
 
@@ -57,38 +47,16 @@ public class WiPlayFramework {
 
     public void Pause(int time)
     {
-        server.SendData(PacketCreator.CreatePausePacket(time));
+        server.BroadCast(PacketCreator.CreatePausePacket(time));
     }
 
     public void Stop()
     {
-        server.SendData(PacketCreator.CreateStopPacket());
-    }
-
-    public void setFile_path(String path)
-    {
-      server.setFile_path(path);
-    }
-
-    public String getHost_name()
-    {
-        if(server != null)
-            return server.getHostname();
-        else if(client != null)
-            return client.getHostname();
-        else
-            return "NO host name set";
+        server.BroadCast(PacketCreator.CreateStopPacket());
     }
 
     public void cleanUp()
     {
-        exitThread = true;
-        if(server != null)
-        server.cleanUp();
-        else if(client != null)
-            client.cleanUp();
-        else
-            Log.i(Constants.Tag, "Do nothing");
         file_path = null;
     }
 }

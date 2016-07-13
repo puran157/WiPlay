@@ -9,6 +9,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.io.IOException;
+
 import app.wiplay.com.wiplay.R;
 import app.wiplay.connection.WiPlayClient;
 import app.wiplay.connection.WiPlayHotSpot;
@@ -103,29 +105,23 @@ public class MainActivity extends Activity {
         });
     }
 
-    public void StartServer()
-    {
+    public void StartServer() throws IOException {
 
 
         /* start the hotspot */
         hotspot.StartHotSpot();
-        framework.setFile_path(file_path);
-        framework.Init(true, "");
-
-
+        WiPlayServer server = new WiPlayServer(getApplication().getApplicationContext());
+        server.Init();
         /* Generate QR Code */
         String data = "";
         data += "HOTSPOT:"+hotspot.getHotspot_name() + "\n";
         data += "PSK:" + hotspot.getHotspot_psk() + "\n";
-        data += "HOST:" + framework.getHost_name() + "\n";
+        data += "HOST:" + server.getWifiApIpAddress() + "\n";
         QRWrapper.CreateQR(data, imageView);
-
-
     }
 
 
-    public void StartClient()
-    {
+    public void StartClient() throws IOException {
         /* Get Server Details from QR
          * Connect to server
          * Start receving the file
@@ -134,12 +130,8 @@ public class MainActivity extends Activity {
         QRWrapper.ScanQR(host_name, hotspot_name, hotspot_psk, qr_data);
         hotspot.setHotspot(hotspot_name, hotspot_psk);
         hotspot.ConnectToHotSpot();
-
-        //slave = new WiPlaySlaves(host_name);
-
-        /* Ask the file
-        * TODO: ERROR CHECK */
-        //slave.AskFile();
+        WiPlayClient client  = new WiPlayClient(host_name);
+        client.Init();
     }
 
     public void cleanUp()
