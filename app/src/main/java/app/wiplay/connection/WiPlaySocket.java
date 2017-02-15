@@ -3,188 +3,105 @@ package app.wiplay.connection;
 import android.util.Log;
 
 import java.io.IOException;
-import java.net.*;
-import java.util.Enumeration;
+import java.net.InetSocketAddress;
+import java.net.Socket;
+import java.net.SocketAddress;
+import java.nio.ByteBuffer;
+import java.nio.channels.ServerSocketChannel;
+import java.nio.channels.SocketChannel;
 
 import app.wiplay.constants.Constants;
+import app.wiplay.framework.ReadEvent;
 
 /**
- * Created by pchand on 10/19/2015.
+ * Created by Puran Chand on 10/19/2015.
  */
 public class WiPlaySocket {
 
-    /* Data Members */
-    private Object socket;
-    private String hostname;
-    private boolean isServer;
-    private WiPlaySocketStruct queue;
-    private WiPlayServer callbackMaster;
-    /* Private Methods */
+    private SocketChannel _socketChannel;
+    private SocketAddress _address;
 
-    /* Public Methods */
+    private WiPlaySocketStruct _dataQueue;
 
-    public WiPlaySocket()
-    {
-        socket = null;
-        hostname = "";
-        isServer = true;
-        queue = null;
-        callbackMaster = null;
-        CreateSocket();
-    }
-    public WiPlaySocket(Socket s, WiPlayServer server)
-    {
-        socket = s;
-        hostname = "";
-        isServer = false;
-        queue = new WiPlaySocketStruct(this);
-        callbackMaster = server;
-        CreateSocket();
+    public WiPlaySocket(String host) {
+        _socketChannel = null;
+        _address = null;
     }
 
-    public WiPlaySocket(String host, WiPlayServer callback)
+    public WiPlaySocket(SocketChannel channel)
     {
-        socket = null;
-        isServer = false;
-        hostname = host;
-        queue = new WiPlaySocketStruct(this);
-        callbackMaster = callback;
+        _socketChannel = channel;
     }
 
-    public String getHostname()
+    public int Init(String host)
     {
-        return hostname;
-    }
-
-    public WiPlayServer getCallbackServer()
-    {
-        return callbackMaster;
-    }
-
-    public Socket getClientSocket()
-    {
-        if(isServer == false)
-            return (Socket)socket;
-        else
-            return null;
-    }
-
-    public ServerSocket getServerSocket()
-    {
-        if(isServer == true)
-            return (ServerSocket)socket;
-        else
-            return null;
-    }
-
-
-
-    /* this call will take care for Bind, Connect */
-    public void CreateSocket()
-    {
-        if(socket != null) {
-            Log.e(Constants.Tag, "Socket is already created");
-            return;
-        }
-        try {
-            if (isServer) {
-                    socket = new ServerSocket(Constants.CONTROL_PORT);
-                //hostname = ((ServerSocket) socket).getLocalSocketAddress().toString();
-                hostname = getWifiApIpAddress();
-                Log.i(Constants.Tag,"Server Socket created @"+hostname);
-            }
-            else {
-                /* Its a client Socket */
-                    socket = new Socket(hostname, Constants.CONTROL_PORT);
-                    Log.i(Constants.Tag, "Client connected @"+hostname);
+        if(_socketChannel == null) {
+            _address = new InetSocketAddress(host, Constants.CONTROL_PORT);
+            try {
+                _socketChannel = SocketChannel.open();
+                _socketChannel.configureBlocking(false);
+            } catch (Exception e) {
+                Log.i(Constants.Tag, "WiplaySocket::Init " + e);
+                return -1;
             }
         }
-        catch(IOException e) {
-            Log.i(Constants.Tag, "CreateSocket Exception " + e);
-            socket = null;
-        }
+
+        return 0;
     }
 
-    public void Send(byte[] data)
-    {
-        queue.PushToOutData(data);
-    }
 
-    public void SendData(byte[] data) {
-        if (data == null){
-            Log.i(Constants.Tag, "No data to send\n");
-            return;
-        }
-        try {
-            this.getClientSocket().getOutputStream().write(data, 0, data.length);
-        } catch (IOException e) {
-            Log.i(Constants.Tag, "Exception happened while sending \n");
-            e.printStackTrace();
-        }
-    }
-
-    public int PacketType()
+    public int Connect()
     {
         try {
-            if(this.getClientSocket().getInputStream().available() > 0)
-                return this.getClientSocket().getInputStream().read();
-        } catch (IOException e) {
-            e.printStackTrace();
+            _socketChannel.connect(_address);
+            while(!_socketChannel.finishConnect()); //Lets wait for connect to be success here
+
         }
-        return -1;
+        catch (Exception e)
+        {
+            Log.i(Constants.Tag, "WiplaySocket::Connect "+e);
+            return -1;
+        }
+        return 0;
     }
 
-    public int ReadData(byte[] data)
+    public int Read()
     {
-        //pool.ReadData(sock, data);
         int read = 0;
         try {
-            if(this.getClientSocket().getInputStream().available() > 0)
-                read =  this.getClientSocket().getInputStream().read(data, 0, data.length);
-        } catch (IOException e) {
-            e.printStackTrace();
+            ByteBuffer readBytes = ByteBuffer.allocate(Constants.BUFFER_SIZE);
+            read = _socketChannel.read(readBytes);
+            _dataQueue.PushReadData(readBytes.array());
+        }
+        catch(Exception e)
+        {
+            Log.i(Constants.Tag, "WiplaySocket::Read "+e);
+            return -1;
         }
         return read;
     }
 
-    public String getWifiApIpAddress() {
+    public int Write()
+    {
+        int write = 0;
         try {
-            for (Enumeration<NetworkInterface> en = NetworkInterface.getNetworkInterfaces(); en
-                    .hasMoreElements();) {
-                NetworkInterface intf = en.nextElement();
-                if (intf.getName().contains("wlan")) {
-                    for (Enumeration<InetAddress> enumIpAddr = intf.getInetAddresses(); enumIpAddr
-                            .hasMoreElements();) {
-                        InetAddress inetAddress = enumIpAddr.nextElement();
-                        if (!inetAddress.isLoopbackAddress()
-                                && (inetAddress.getAddress().length == 4)) {
-                            Log.d(Constants.Tag, inetAddress.getHostAddress());
-                            return inetAddress.getHostAddress();
-                        }
-                    }
-                }
+            ByteBuffer writeBytes = ByteBuffer.wrap(_dataQueue.PopWriteData());
+            write = _socketChannel.write(writeBytes);
+
+            if(write != writeBytes.capacity())
+            {
+                Log.w(Constants.Tag, "WiplaySocket::Write Write partial success, adding remaning data back to queue");
+                ByteBuffer remaining = ByteBuffer.wrap(writeBytes.array(), write, writeBytes.capacity());
+                _dataQueue.PushWriteData(remaining.array());
             }
-        } catch (SocketException ex) {
-            Log.e(Constants.Tag, ex.toString());
+
         }
-        return null;
+        catch(Exception e)
+        {
+            Log.i(Constants.Tag, "WiplaySocket::Write "+e);
+            return -1;
+        }
+        return write;
     }
 
-    public void cleanUp()
-    {
-        try {
-            if(isServer)
-                getServerSocket().close();
-            else
-                getClientSocket().close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        socket = null;
-        if(queue != null) {
-            queue.cleanUp();
-            queue = null;
-        }
-        hostname = null;
-    }
 }

@@ -9,98 +9,54 @@ import app.wiplay.constants.Constants;
  */
 public class WiPlaySocketStruct {
 
-    private LinkedList<byte[]> OutData;
-    private LinkedList<byte[]> InData;
-    private WiPlayClient sock;
+    private LinkedList<byte[]> _readData;
+    private LinkedList<byte[]> _writeData;
+    private WiPlaySocket sock;
     private int offSet;
-    private Thread callback;
-    private Thread reader;
-    private Thread writer;
 
-    public WiPlaySocketStruct(WiPlayClient socket)
+    public WiPlaySocketStruct(WiPlaySocket socket)
     {
-        OutData = new LinkedList<>();
-        InData = new LinkedList<>();
+        _readData = new LinkedList<>();
+        _writeData = new LinkedList<>();
         offSet = 0;
-        //exitThread = false;
         sock = socket;
-
-        callback = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                while(!Constants.exitAll)
-                {
-                    CallbackImpl();
-                }
-            }
-        });
-        callback.start();
-
-        writer = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                while(!Constants.exitAll)
-                {
-//                    sock.Write(PopFromOutData());
-                }
-            }
-        });
-
-        reader = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                while (!Constants.exitAll) {
-                    byte [] data = null;
-                    //PacketCreator.AllocateBuffer(sock.PacketType(), data);
-                    if(data.length > 1)
-                        //sock.Read(data);
-                    PushToInData(data);
-                }
-            }
-        });
     }
 
-    public void PushToOutData(byte[] data)
+    public void PushWriteData(byte[] data)
     {
-        OutData.addLast(data);
+        _writeData.addLast(data);
         offSet += data.length;
     }
 
-    public byte[] PopFromOutData()
+    public byte[] PopWriteData()
     {
-        if(OutData.isEmpty())
+        if(_writeData.isEmpty())
             return null;
-        byte[] data = OutData.getFirst();
-        OutData.removeFirst();
+        byte[] data = _writeData.getFirst();
+        _writeData.removeFirst();
         return data;
     }
 
-    public void PushToInData(byte[] data)
+    public void PushReadData(byte[] data)
     {
-        InData.addLast(data);
+        _readData.addLast(data);
     }
 
-    public byte[] PopFromInData()
+    public byte[] PopReadData()
     {
-        if(InData == null || InData.isEmpty())
+        if(_readData == null || _readData.isEmpty())
             return null;
-        byte[] data = InData.getFirst();
-        InData.removeFirst();
+        byte[] data = _readData.getFirst();
+        _readData.removeFirst();
         return data;
-    }
-
-
-    public void CallbackImpl()
-    {
-            PacketParser.ParsePacket(PopFromInData(), sock);
     }
 
     public void cleanUp()
     {
-        OutData.clear();
-        OutData = null;
-        InData.clear();
-        InData = null;
+        _writeData.clear();
+        _writeData = null;
+        _readData.clear();
+        _readData = null;
         Constants.exitAll = true;
     }
 }

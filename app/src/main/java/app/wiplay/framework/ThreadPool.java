@@ -6,6 +6,7 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 import app.wiplay.connection.WiPlayClient;
+import app.wiplay.connection.WiPlaySocket;
 import app.wiplay.constants.Constants;
 
 /**
@@ -19,8 +20,8 @@ public class ThreadPool {
     Lock lock;
     Condition readCondition;
     Condition writeCondition;
-    ArrayList<WiPlayClient> readEventList;
-    ArrayList<WiPlayClient> writeEventList;
+    ArrayList<WiPlaySocket> readEventList;
+    ArrayList<WiPlaySocket> writeEventList;
     static ThreadPool instance;
 
     private ThreadPool()
@@ -50,7 +51,7 @@ public class ThreadPool {
                         readCondition.await();
                         synchronized (readEventList) {
                             if (!readEventList.isEmpty()) {
-                                WiPlayClient client = readEventList.get(0);
+                                WiPlaySocket socket = readEventList.get(0);
                                 //Perform read
                             }
                         }
@@ -73,7 +74,7 @@ public class ThreadPool {
                         synchronized (writeEventList) {
                         if(writeEventList.isEmpty())
                             writeCondition.await();
-                                WiPlayClient client = writeEventList.get(0);
+                                WiPlaySocket client = writeEventList.get(0);
                                 //Perform Write
                         }
                     } catch (InterruptedException e) {
@@ -101,13 +102,13 @@ public class ThreadPool {
     }
 
 
-    public void AddReadEvent(WiPlayClient obj)
+    public void AddReadEvent(WiPlaySocket obj)
     {
         readEventList.add(obj);
         readCondition.signal();
     }
 
-    public void AddWriteEvent(WiPlayClient obj)
+    public void AddWriteEvent(WiPlaySocket obj)
     {
         writeEventList.add(obj);
         writeCondition.signal();

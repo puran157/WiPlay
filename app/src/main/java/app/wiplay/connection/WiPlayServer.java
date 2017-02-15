@@ -22,14 +22,15 @@ import java.util.Set;
 
 import app.wiplay.constants.Constants;
 import app.wiplay.framework.ThreadPool;
+import app.wiplay.framework.Utils;
 
 /**
  * Created by pchand on 11/12/2015.
  */
 public class WiPlayServer {
-    public static HashMap<SocketChannel, WiPlayClient> pool;
+    public static HashMap<SocketChannel, WiPlaySocket> _connections;
     private Context context;
-    private ServerSocketChannel server;
+    private ServerSocketChannel _server;
     private int worker_count;
     private Selector event;
     public WiPlayServer(Context c)
@@ -42,40 +43,17 @@ public class WiPlayServer {
     }
 
     public void Init() throws IOException {
-        if(pool == null)
-            pool = new HashMap<>(Constants.MAX_CLIENTS);
-        server = ServerSocketChannel.open();
-        server.configureBlocking(false);
-        String wifi_addr = getWifiApIpAddress();
+        if(_connections == null)
+            _connections = new HashMap<>(Constants.MAX_CLIENTS);
+        _server = ServerSocketChannel.open();
+        _server.configureBlocking(false);
+        String wifi_addr = Utils.getWifiApIpAddress();
         if(wifi_addr != null) {
-            server.socket().bind(new InetSocketAddress(wifi_addr, Constants.CONTROL_PORT));
+            _server.socket().bind(new InetSocketAddress(wifi_addr, Constants.CONTROL_PORT));
         }
         event = Selector.open();
-        server.register(event, SelectionKey.OP_ACCEPT);
+        _server.register(event, SelectionKey.OP_ACCEPT);
         EventHandler();
-    }
-
-    public String getWifiApIpAddress() {
-        try {
-            for (Enumeration<NetworkInterface> en = NetworkInterface.getNetworkInterfaces(); en
-                    .hasMoreElements(); ) {
-                NetworkInterface intf = en.nextElement();
-                if (intf.getName().contains("wlan")) {
-                    for (Enumeration<InetAddress> enumIpAddr = intf.getInetAddresses(); enumIpAddr
-                            .hasMoreElements(); ) {
-                        InetAddress inetAddress = enumIpAddr.nextElement();
-                        if (!inetAddress.isLoopbackAddress()
-                                && (inetAddress.getAddress().length == 4)) {
-                            Log.d(Constants.Tag, inetAddress.getHostAddress());
-                            return inetAddress.getHostAddress();
-                        }
-                    }
-                }
-            }
-        } catch (SocketException ex) {
-            Log.e(Constants.Tag, ex.toString());
-        }
-        return null;
     }
 
     private void EventHandler()
@@ -96,18 +74,18 @@ public class WiPlayServer {
                                 i.remove();
 
                                 if (key.isAcceptable()) {
-                                    SocketChannel client = server.accept();
+                                    SocketChannel client = _server.accept();
                                     client.configureBlocking(false);
                                     client.register(event, SelectionKey.OP_READ);
                                     client.register(event, SelectionKey.OP_WRITE);
-                                    WiPlayClient obj = new WiPlayClient(client);
-                                    pool.put(client, obj);
+                                    WiPlaySocket obj = new WiPlaySocket(client);
+                                    _connections.put(client, obj);
                                 }
 
                                 if(key.isReadable())
                                 {
                                     SocketChannel client = (SocketChannel) key.channel();
-                                    WiPlayClient obj = pool.get(client);
+                                    WiPlaySocket obj = _connections.get(client);
                                     /* add read event */
                                     ThreadPool.getInstance().AddReadEvent(obj);
                                 }
